@@ -1,0 +1,43 @@
+{
+  "name": "bloxui",
+  "description": "HTML, CSS, and JavaScript components for building modern, browser-based user interfaces.",
+  "version": "1.0.0",
+  "author": "Impact Marketing Specialists, Inc.",
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/impactmarketingspecialists/bloxui/blob/master/LICENSE"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/impactmarketingspecialists/bloxui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/impactmarketingspecialists/bloxui/issues"
+  },
+  "private": true,
+  "main": [
+    "dist/css/bloxui.css",
+    "dist/js/bloxui.js",
+    "dist/fonts/glyphicons-halflings-regular.eot",
+    "dist/fonts/glyphicons-halflings-regular.svg",
+    "dist/fonts/glyphicons-halflings-regular.ttf",
+    "dist/fonts/glyphicons-halflings-regular.woff"
+  ],
+  "scripts": {
+    "test":"grun test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "bower": "*",
+    "grunt": "^0.4.4",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-concat": "^0.3.0",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-contrib-cssmin": "^0.9.0",
+    "grunt-contrib-less": "^0.12.0",
+    "grunt-contrib-uglify": "^0.4.0",
+    "grunt-contrib-watch": "^0.6.0",
+    "grunt-exec": "^0.4.5",
+    "grunt-ftp-push": "^0.2.4"
+  }
+}
