@@ -28,6 +28,9 @@
 	margin:0.5em 0;
 }
 
+[am-Inline] {
+	display:inline-block;
+}
 
 [am-FluidRow] {
 	text-align: justify;
