@@ -214,6 +214,7 @@ Animate the stripes
 	border-bottom:1px solid #DEDEDE;
 	color:#ccc;
 	padding:0.5em;
+	cursor: default;
 }
 
 [am-DataTable] tbody td:nth-child(2) {
@@ -246,11 +247,13 @@ Animate the stripes
 }
 
 [am-DataTable][am-Tools~=drag-sort] tbody td:first-child {
-	cursor: pointer;
-}
-
-[am-DataTable][am-Tools~=drag-sort] tbody td:first-child:active {
 	cursor: move;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 [am-DataTable][am-Tools~=drag-sort] th td:first-child {
@@ -311,6 +314,11 @@ table[data-sortable] th[data-sorted-direction="descending"]:after {
 }
 table[data-sortable] th[data-sorted-direction="ascending"]:after {
   content: "\e114";
+}
+
+[am-DataTable][am-Tools~=edit-cell] input {
+	display:inline;
+	width:auto;
 }
 
 /* am-Menu="callout" am-Animate="flyout down fast" am-Attach="right" */
