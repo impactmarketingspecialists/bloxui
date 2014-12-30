@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     clean: {
       release: [
-        "dist/**"
+        "dist/**", "build/**"
       ]
     },
     copy: {
@@ -40,33 +40,33 @@ module.exports = function(grunt) {
           strictMath: true,
           sourceMap: true,
           outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
+          sourceMapURL: '<%= pkg.name %>-bootstrap.css.map',
+          sourceMapFilename: 'dist/css/<%= pkg.name %>-bootstrap.css.map'
         },
         src: 'build/bootstrap/less/bootstrap.less',
-        dest: 'build/css/<%= pkg.name %>-bootsrap.css'
+        dest: 'build/css/<%= pkg.name %>-bootstrap.css'
       },
       compileTheme: {
         options: {
           strictMath: true,
           sourceMap: true,
           outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>-theme.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
+          sourceMapURL: '<%= pkg.name %>-bootstrap-theme.css.map',
+          sourceMapFilename: 'dist/css/<%= pkg.name %>-bootstrap-theme.css.map'
         },
         src: 'build/bootstrap/less/theme.less',
         dest: 'build/css/<%= pkg.name %>-bootstrap-theme.css'
       },
       compileBlox: {
         options: {
+          strictImports: true,
           strictMath: true,
           sourceMap: true,
           outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>-theme.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
+          sourceMapURL: '<%= pkg.name %>-core.css.map',
+          sourceMapFilename: 'dist/css/<%= pkg.name %>-core.css.map'
         },
-        src: 'src/css/bloxui.less',
-        dest: 'build/css/<%= pkg.name %>-core.css'
+        files: { "build/css/<%= pkg.name %>-core.css": ['src/css/<%= pkg.name %>.less'] }
       }
     },
     concat: {
@@ -75,45 +75,46 @@ module.exports = function(grunt) {
       },
       js: {
         src: [
+          'bower_components/bootstrap/dist/js/bootstrap.js',
           'bower_components/TableDnD/js/jquery.tablednd.js',
           'bower_components/sortable/js/sortable.js',
           'src/js/*.js'
         ],
-        dest: 'dist/js/bloxui-light.js'
+        dest: 'dist/js/<%= pkg.name %>-light.js'
       },
       jsfull: {
         src: [
           'bower_components/jquery/dist/jquery.js',
-          'dist/js/bloxui-light.js'
+          'dist/js/<%= pkg.name %>-light.js'
         ],
         dest: 'dist/js/<%= pkg.name %>.js'
       },
       css: {
         src: [
-          'build/css/*.css'
+          'build/css/*.css', '!build/css/*.css.map', '!build/css/<%= pkg.name %>.css'
         ],
         dest: 'dist/css/<%= pkg.name %>.css'
       }
     },
     uglify: {
       options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
+        banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
         beautify: false
       },
       build: {
         files: {
-            'dist/js/bloxui-min.js': ['dist/js/bloxui.js'],
-            'dist/js/bloxui-light-min.js': ['dist/js/bloxui-light.js']
+            'dist/js/<%= pkg.name %>-min.js': ['dist/js/<%= pkg.name %>.js'],
+            'dist/js/<%= pkg.name %>-light-min.js': ['dist/js/<%= pkg.name %>-light.js']
         }
       }
     },
     cssmin: {
       options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+        banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n'
       },
       combine: {
         files: {
-          "dist/css/<%= pkg.name %>-min.css": ["dist/css/<%= pkg.name %>.css"]
+          "dist/css/<%= pkg.name %>-min.css": ['build/css/*.css', '!build/css/*.css.map', '!build/css/<%= pkg.name %>.css']
         }
       }
     },
