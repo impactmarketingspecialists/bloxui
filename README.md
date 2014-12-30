@@ -61,7 +61,7 @@ To include blox in your project use one of the following options:
 
 - Clone the repo: `git clone https://github.com/impactmarketingspecialists/bloxui.git`.
 - Install with [Bower](http://bower.io): `bower install bloxui`.
-- Install with [npm](https://www.npmjs.org): `npm install bloxui`. (not yet)
+- Install with [npm](https://www.npmjs.org): `npm install bloxui`.
 
 ## Versioning
 

@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/impactmarketingspecialists/bloxui/issues"
   },
-  "private": true,
+  "private": false,
   "main": [
     "dist/css/bloxui.css",
     "dist/js/bloxui.js",
