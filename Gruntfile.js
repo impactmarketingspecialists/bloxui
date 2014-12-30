@@ -8,6 +8,67 @@ module.exports = function(grunt) {
         "dist/**"
       ]
     },
+    copy: {
+      boostrap: {
+        files: [{
+          expand: true,
+          cwd: 'bower_components/bootstrap/less',
+          src: ['./**'],
+          dest: 'build/bootstrap/less'
+        }]
+      },
+      boostrapOverrides: {
+        files: [{
+          expand: true,
+          cwd: 'src/css/bootstrap',
+          src: ['./**'],
+          dest: 'build/bootstrap/less'
+        }]
+      },
+      fonts: {
+        files: [{
+          expand: true,
+          cwd: 'bower_components/bootstrap/fonts',
+          src: ['./*'],
+          dest: 'dist/fonts'
+        }]
+      }
+    },
+    less: {
+      compileCore: {
+        options: {
+          strictMath: true,
+          sourceMap: true,
+          outputSourceFiles: true,
+          sourceMapURL: '<%= pkg.name %>.css.map',
+          sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
+        },
+        src: 'build/bootstrap/less/bootstrap.less',
+        dest: 'build/css/<%= pkg.name %>-bootsrap.css'
+      },
+      compileTheme: {
+        options: {
+          strictMath: true,
+          sourceMap: true,
+          outputSourceFiles: true,
+          sourceMapURL: '<%= pkg.name %>-theme.css.map',
+          sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
+        },
+        src: 'build/bootstrap/less/theme.less',
+        dest: 'build/css/<%= pkg.name %>-bootstrap-theme.css'
+      },
+      compileBlox: {
+        options: {
+          strictMath: true,
+          sourceMap: true,
+          outputSourceFiles: true,
+          sourceMapURL: '<%= pkg.name %>-theme.css.map',
+          sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
+        },
+        src: 'src/css/bloxui.less',
+        dest: 'build/css/<%= pkg.name %>-core.css'
+      }
+    },
     concat: {
       options: {
         separator: "\n"
@@ -25,14 +86,13 @@ module.exports = function(grunt) {
           'bower_components/jquery/dist/jquery.js',
           'dist/js/bloxui-light.js'
         ],
-        dest: 'dist/js/bloxui.js'
+        dest: 'dist/js/<%= pkg.name %>.js'
       },
       css: {
         src: [
-          'build/css/glyphicons.css',
-          'src/css/**.css',
+          'build/css/*.css'
         ],
-        dest: 'dist/css/bloxui.css'
+        dest: 'dist/css/<%= pkg.name %>.css'
       }
     },
     uglify: {
@@ -47,55 +107,14 @@ module.exports = function(grunt) {
         }
       }
     },
-    less: {
-      icons: {
-        files: {
-          "build/css/glyphicons.css": "src/css/bloxui.less"
-        }
-      }
-    },
     cssmin: {
       options: {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       combine: {
         files: {
-          "dist/css/bloxui-min.css": ["dist/css/bloxui.css"]
+          "dist/css/<%= pkg.name %>-min.css": ["dist/css/<%= pkg.name %>.css"]
         }
-      }
-    },
-    copy: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: 'src/dist',
-          src: ['./*'],
-          dest: 'www'
-        }]
-      },
-      fonts: {
-        files: [{
-          expand: true,
-          cwd: 'bower_components/bootstrap/fonts',
-          src: ['./*'],
-          dest: 'dist/fonts'
-        }]
-      },
-      html: {
-        files: [{
-          expand: true,
-          cwd: 'src/html',
-          src: ['*.html','*.htm'],
-          dest: 'dist/html'
-        }]
-      },
-      test: {
-        files:[{
-          expand: true,
-          cwd: './',
-          src: ['test/**'],
-          dest: 'dist'
-        }]
       }
     },
     watch: {
