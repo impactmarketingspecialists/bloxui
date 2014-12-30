@@ -1,7 +1,7 @@
 {
   "name": "bloxui",
   "description": "HTML, CSS, and JavaScript components for building modern, browser-based user interfaces.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Impact Marketing Specialists, Inc.",
   "license": {
     "type": "MIT",
