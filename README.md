@@ -3,9 +3,25 @@ Blox UI
 
 HTML, CSS, and JavaScript components for building modern, browser-based user interfaces.
 
+## Using Blox UI
+
+Blox UI (blox) is pretty specific to the applications we are building here at Impact Marketing Specialists. However,
+that doesn't mean you can't leverage what we've done with your own projects. There are two ways to leverage bloxui.
+
+### Out of the B[l]ox
+
+If you dig our theme(s?) and the way we are maturing our toolkit for applications, feel free to skip down to the [Getting Started](#Getting Started)
+section and start using what we've built. This is how we use it internally.
+
+### Hard Core Forking Action
+
+You may not be into our style, choices of libraries, etc. But maybe you've been looking for something like this for your own projects.
+Feel free to use blox as guide; it's all bower, npm, grunt goodness. If you're looking for deeper customizations yet, like custom jquery builds,
+amd definitions and the like; they will be coming soon.
+
 ## Reasoning
 
-Blox UI (blox) is about leveraging some common JS and CSS libraries that experienced developers are likely to have
+Blox UI is about leveraging some common JS and CSS libraries that experienced developers are likely to have
 some level of exposure to, extending/modifying attributes or features of those libraries and throwing in our own
 batch of common components for building consistent web applications.
 
@@ -44,8 +60,8 @@ upgraded and individually tested for API compatibility.
 To include blox in your project use one of the following options:
 
 - Clone the repo: `git clone https://github.com/impactmarketingspecialists/bloxui.git`.
-- Install with [Bower](http://bower.io): `bower install bloxui`. (not working)
-- Install with [npm](https://www.npmjs.org): `npm install bloxui`. (not working)
+- Install with [Bower](http://bower.io): `bower install bloxui`.
+- Install with [npm](https://www.npmjs.org): `npm install bloxui`. (not yet)
 
 ## Versioning
 
