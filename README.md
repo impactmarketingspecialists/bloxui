@@ -10,7 +10,7 @@ that doesn't mean you can't leverage what we've done with your own projects. The
 
 ### Out of the B[l]ox
 
-If you dig our theme(s?) and the way we are maturing our toolkit for applications, feel free to skip down to the [Getting Started](#Getting Started)
+If you dig our theme(s?) and the way we are maturing our toolkit for applications, feel free to skip down to the [Getting Started](#getting-started)
 section and start using what we've built. This is how we use it internally.
 
 ### Hard Core Forking Action
