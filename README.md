@@ -3,13 +3,49 @@ Blox UI
 
 HTML, CSS, and JavaScript components for building modern, browser-based user interfaces.
 
+## Reasoning
+
+Blox UI (blox) is about leveraging some common JS and CSS libraries that experienced developers are likely to have
+some level of exposure to, extending/modifying attributes or features of those libraries and throwing in our own
+batch of common components for building consistent web applications.
+
+This is a common issue for many teams, who simply elect to include hosted versions of jQuery, jQueryUI, YUI and/or Bootstrap.
+In some cases teams will go and use the online tools to customize a given library, download the package and include it with their
+project sources. Some teams will even be as advanced as to fully customize and brand a library for their purposes.
+
+This can often lead to various versions of libraries being used in various distict projects that are deployed together. "Ouch. Which
+version does x project use? Did it get all the nice Bootstrap tweaks we made? No? Oh let's copy that over."
+
+### Single Build
+
+We'd like to provide all of our common libraries as a nicely bundled package; all at their specific version number - so there's never
+any confusion which version of which libraries are being bundled.
+
+### Customizations and Extensions
+
+We like [Attribute Modules](https://amcss.github.io/). We also like Bootstrap. Blox is where we merge those worlds together. In addition,
+we also bring over the glyph icons (in an AMCSS friendly way) and pile on new components of our own. Some of our extra components will have
+further dependencies (table sorting, etc.) and we may bring jQuery UI and Bootstrap together.
+
+Blox UI is our playground for integrating and introducing additions to our JS/CSS toolset. Versions are likely to match API changes from
+dependent libraries. In the future, even lighter, more custom builds of libraries may be generated as well as proper source maps.
+
+### Simple Versioning and Packaging
+
+Versioning is critical. Teams may work on various projects and it is critical that each project can be safely upgraded to a newer version
+of blox. Likely this may mean some API changes that break backwards compatibility or net new components. It is unsafe to wholesale publish
+a new version of blox that all projects are linked against.
+
+Projects should include and be built against a particular release of blox. As newer versions of blox are released, projects can safely be
+upgraded and individually tested for API compatibility.
+
 ## Getting Started
 
 To include blox in your project use one of the following options:
 
 - Clone the repo: `git clone https://github.com/impactmarketingspecialists/bloxui.git`.
-- Install with [Bower](http://bower.io): `bower install bloxui`.
-- Install with [npm](https://www.npmjs.org): `npm install bloxui`.
+- Install with [Bower](http://bower.io): `bower install bloxui`. (not working)
+- Install with [npm](https://www.npmjs.org): `npm install bloxui`. (not working)
 
 ## Versioning
 
