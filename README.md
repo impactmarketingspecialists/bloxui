@@ -32,6 +32,8 @@ project sources. Some teams will even be as advanced as to fully customize and b
 This can often lead to various versions of libraries being used in various distict projects that are deployed together. "Ouch. Which
 version does x project use? Did it get all the nice Bootstrap tweaks we made? No? Oh let's copy that over."
 
+Blox is not the first project to address this issue, nor likely to be the last. It may however, be the most rudimentary.
+
 ### Single Build
 
 We'd like to provide all of our common libraries as a nicely bundled package; all at their specific version number - so there's never
