@@ -13104,7 +13104,7 @@ function(a,b,c){b?c||(c=b,b=null):(c=a,a=f);return this.each(function(){var e=d(
 
 			if (_tools.indexOf('edit-row') > -1) {
 				this.editRow = function(row) {
-					$('td',row).not('.form-control').attr('contenteditable', true);
+					$('td',row).not('.table-control').attr('contenteditable', true);
 				};
 			}
 
