@@ -6879,7 +6879,11 @@ button.close {
   border-bottom-left-radius: 0;
   border-left: 0;
   margin-left: 0;
-  padding: 5px 10px 6px 10px;
+  /*padding:5px 10px 6px 10px;*/
+}
+[am-Button~=select] .btn-label {
+  margin: 0 3px;
+  vertical-align: top;
 }
 [am-Screen] {
   display: none;
@@ -7200,13 +7204,6 @@ input[type=text] {
 }
 [am-Form].search {
   white-space: nowrap;
-}
-[am-Form].search [am-Button~=search] {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 0;
-  margin-left: 0;
-  padding: 0.32em 0.46em;
 }
 [am-Form].search input[type=text] {
   border-top-right-radius: 0;
