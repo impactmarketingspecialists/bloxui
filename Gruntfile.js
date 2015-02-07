@@ -77,7 +77,9 @@ module.exports = function(grunt) {
         src: [
           'bower_components/bootstrap/dist/js/bootstrap.js',
           'bower_components/TableDnD/js/jquery.tablednd.js',
+          'bower_components/jquery-observe/jquery-observe.js',
           'bower_components/sortable/js/sortable.js',
+          'bower_components/numeral/numeral.js',
           'src/js/*.js'
         ],
         dest: 'dist/js/<%= pkg.name %>-light.js'
