@@ -6815,7 +6815,7 @@ button.close {
 }
 [am-Button] {
   display: inline-block;
-  padding: .2em .6em;
+  padding: .33em .6em;
   border: 1px solid #EAEEF0;
   border-radius: 4px;
   /*border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);*/
@@ -6873,6 +6873,13 @@ button.close {
   border: 0;
   /*margin-top:0.12em;*/
   padding: 0.3em 0.12em;
+}
+[am-Button~=search] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+  margin-left: 0;
+  padding: 5px 10px 6px 10px;
 }
 [am-Screen] {
   display: none;
