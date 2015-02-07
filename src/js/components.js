@@ -51,7 +51,7 @@
 
 			if (_tools.indexOf('edit-row') > -1) {
 				this.editRow = function(row) {
-					$('td',row).attr('contenteditable', true);
+					$('td:not(.table-control)',row).attr('contenteditable', true);
 				};
 			}
 
