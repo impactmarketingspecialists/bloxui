@@ -9,7 +9,6 @@
 
 		if (_tools.indexOf('select-all') > -1 || _tools.indexOf('select-multi') > -1) {
 			var _select = function(e){
-				console.dir(e.target.nodeName);
 				var em = (e.target.nodeName == 'INPUT') ? $(e.target).parent().parent() : $(e.target).parent();
 				var val = (em.attr('am-Selected') == '') ? 'false' : em.attr('am-Selected');
 				em.attr('am-Selected', (val === 'true')? 'false':'true');
@@ -62,8 +61,9 @@
 				});
 			}
 		}
-
 	};
+
+	$.fn.DataTable = DataTable;
 
 	$(document).ready(function(){
 		$('[am-DataTable][am-Tools~=drag-sort]').tableDnD();
