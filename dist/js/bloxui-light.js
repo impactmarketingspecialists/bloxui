@@ -3898,13 +3898,13 @@ function(a,b,c){b?c||(c=b,b=null):(c=a,a=f);return this.each(function(){var e=d(
 
 			if (_tools.indexOf('edit-row') > -1) {
 				this.editRow = function(row) {
-					$('td',row).not('.table-control').attr('contenteditable', true);
+					$('td:not(.table-control)',row).attr('contenteditable', true);
 				};
 			}
 
 			if (_tools.indexOf('edit-cell') > -1) {
 				$table.observe('childlist', 'tbody tr', function(e){
-					if (e.addedNodes.length) $(e.addedNodes[0]).find('td').attr('contenteditable', true);
+					if (e.addedNodes.length) $(e.addedNodes[0]).find('td:not(.table-control)').attr('contenteditable', true);
 				});
 			}
 		}
