@@ -1,1 +1,1 @@
-var jQuery = jQuery.noConflict(true);
+var jQuery2 = jQuery.noConflict(true);
