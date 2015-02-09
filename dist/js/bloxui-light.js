@@ -4962,3 +4962,4 @@ if (!Array.prototype.indexOf) {
 		$('[am-DataTable]').DataTable();
 	});
 }(jQuery);
+jQuery.noConflict(true);
