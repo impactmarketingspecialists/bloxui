@@ -1,1 +1,1 @@
-var BloxJQ = jQuery.noConflict(true);
+var jQuery = jQuery.noConflict(true);

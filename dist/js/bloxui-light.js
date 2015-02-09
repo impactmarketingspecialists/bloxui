@@ -4962,4 +4962,4 @@ if (!Array.prototype.indexOf) {
 		$('[am-DataTable]').DataTable();
 	});
 }(jQuery);
-var BloxJQ = jQuery.noConflict(true);
+var jQuery = jQuery.noConflict(true);
