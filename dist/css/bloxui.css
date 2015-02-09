@@ -7211,7 +7211,7 @@ input[type=text] {
   border-bottom-right-radius: 0 !important;
   margin: 0;
   vertical-align: top;
-  border-color: #EAEEF0;
+  border-color: #EAEEF0 !important;
 }
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: searchfield-cancel-button !important;
