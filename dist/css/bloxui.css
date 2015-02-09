@@ -7205,11 +7205,18 @@ input[type=text] {
 [am-Form].search {
   white-space: nowrap;
 }
-[am-Form].search input[type=text] {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+[am-Form].search input[type=text],
+[am-Form].search input[type=search] {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
   margin: 0;
   vertical-align: top;
+}
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: searchfield-cancel-button !important;
+}
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: searchfield-decoration !important;
 }
 [am-Column] {
   margin: 0;

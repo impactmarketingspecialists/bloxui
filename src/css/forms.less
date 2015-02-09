@@ -19,8 +19,17 @@ input[type=text] {
 }
 
 [am-Form].search input[type=text], [am-Form].search input[type=search] {
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
+	border-top-right-radius: 0 !important;
+	border-bottom-right-radius: 0 !important;
 	margin:0;
 	vertical-align: top;
+	border-color: #EAEEF0;
+}
+
+
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: searchfield-cancel-button !important;
+}
+input[type="search"]::-webkit-search-decoration {
+	-webkit-appearance: searchfield-decoration !important;
 }
