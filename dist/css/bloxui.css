@@ -7198,8 +7198,8 @@ table[data-sortable] th[data-sorted-direction="ascending"]:after {
 }
 input[type=text] {
   border: 1px solid #E9EFF0;
-  border-radius: 5px;
-  padding: 0.5em 0.6em;
+  border-radius: 4px;
+  padding: 0.5em 0.86em;
   margin: 0;
 }
 [am-Form].search {
