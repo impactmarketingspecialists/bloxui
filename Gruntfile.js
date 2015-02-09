@@ -79,6 +79,7 @@ module.exports = function(grunt) {
           'bower_components/TableDnD/js/jquery.tablednd.js',
           'bower_components/jquery-observe/jquery-observe.js',
           'bower_components/sortable/js/sortable.js',
+          'bower_components/filter.js/filter.js',
           'bower_components/numeral/numeral.js',
           'src/js/*.js'
         ],
