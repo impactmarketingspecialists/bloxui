@@ -40,6 +40,7 @@
     "numeral": "~1.5.3",
     "filter.js": "https://github.com/jiren/filter.js.git#1.5.2",
     "isotope": "~2.1.0",
-    "search.js": "https://github.com/hirokiosame/search.js.git#0.4.0"
+    "search.js": "https://github.com/hirokiosame/search.js.git#0.4.0",
+    "mustache": "~1.0.0"
   }
 }
