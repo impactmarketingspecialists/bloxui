@@ -80,6 +80,8 @@ module.exports = function(grunt) {
           'bower_components/jquery-observe/jquery-observe.js',
           'bower_components/sortable/js/sortable.js',
           'bower_components/filter.js/filter.js',
+          'bower_components/isotope/dist/isotope.pkgd.js',
+          'bower_components/search.js/build/visualsearch.js',
           'bower_components/numeral/numeral.js',
           'src/js/*.js'
         ],

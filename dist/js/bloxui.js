@@ -12833,6 +12833,5982 @@ if (!Array.prototype.indexOf) {
 }
 
 /*!
+ * Isotope PACKAGED v2.1.0
+ * Filter & sort magical layouts
+ * http://isotope.metafizzy.co
+ */
+
+/**
+ * Bridget makes jQuery widgets
+ * v1.1.0
+ * MIT license
+ */
+
+( function( window ) {
+
+
+
+// -------------------------- utils -------------------------- //
+
+var slice = Array.prototype.slice;
+
+function noop() {}
+
+// -------------------------- definition -------------------------- //
+
+function defineBridget( $ ) {
+
+// bail if no jQuery
+if ( !$ ) {
+  return;
+}
+
+// -------------------------- addOptionMethod -------------------------- //
+
+/**
+ * adds option method -> $().plugin('option', {...})
+ * @param {Function} PluginClass - constructor class
+ */
+function addOptionMethod( PluginClass ) {
+  // don't overwrite original option method
+  if ( PluginClass.prototype.option ) {
+    return;
+  }
+
+  // option setter
+  PluginClass.prototype.option = function( opts ) {
+    // bail out if not an object
+    if ( !$.isPlainObject( opts ) ){
+      return;
+    }
+    this.options = $.extend( true, this.options, opts );
+  };
+}
+
+// -------------------------- plugin bridge -------------------------- //
+
+// helper function for logging errors
+// $.error breaks jQuery chaining
+var logError = typeof console === 'undefined' ? noop :
+  function( message ) {
+    console.error( message );
+  };
+
+/**
+ * jQuery plugin bridge, access methods like $elem.plugin('method')
+ * @param {String} namespace - plugin name
+ * @param {Function} PluginClass - constructor class
+ */
+function bridge( namespace, PluginClass ) {
+  // add to jQuery fn namespace
+  $.fn[ namespace ] = function( options ) {
+    if ( typeof options === 'string' ) {
+      // call plugin method when first argument is a string
+      // get arguments for method
+      var args = slice.call( arguments, 1 );
+
+      for ( var i=0, len = this.length; i < len; i++ ) {
+        var elem = this[i];
+        var instance = $.data( elem, namespace );
+        if ( !instance ) {
+          logError( "cannot call methods on " + namespace + " prior to initialization; " +
+            "attempted to call '" + options + "'" );
+          continue;
+        }
+        if ( !$.isFunction( instance[options] ) || options.charAt(0) === '_' ) {
+          logError( "no such method '" + options + "' for " + namespace + " instance" );
+          continue;
+        }
+
+        // trigger method with arguments
+        var returnValue = instance[ options ].apply( instance, args );
+
+        // break look and return first value if provided
+        if ( returnValue !== undefined ) {
+          return returnValue;
+        }
+      }
+      // return this if no return value
+      return this;
+    } else {
+      return this.each( function() {
+        var instance = $.data( this, namespace );
+        if ( instance ) {
+          // apply options & init
+          instance.option( options );
+          instance._init();
+        } else {
+          // initialize new instance
+          instance = new PluginClass( this, options );
+          $.data( this, namespace, instance );
+        }
+      });
+    }
+  };
+
+}
+
+// -------------------------- bridget -------------------------- //
+
+/**
+ * converts a Prototypical class into a proper jQuery plugin
+ *   the class must have a ._init method
+ * @param {String} namespace - plugin name, used in $().pluginName
+ * @param {Function} PluginClass - constructor class
+ */
+$.bridget = function( namespace, PluginClass ) {
+  addOptionMethod( PluginClass );
+  bridge( namespace, PluginClass );
+};
+
+return $.bridget;
+
+}
+
+// transport
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'jquery-bridget/jquery.bridget',[ 'jquery' ], defineBridget );
+} else if ( typeof exports === 'object' ) {
+  defineBridget( require('jquery') );
+} else {
+  // get jquery from browser global
+  defineBridget( window.jQuery );
+}
+
+})( window );
+
+/*!
+ * eventie v1.0.5
+ * event binding helper
+ *   eventie.bind( elem, 'click', myFn )
+ *   eventie.unbind( elem, 'click', myFn )
+ * MIT license
+ */
+
+/*jshint browser: true, undef: true, unused: true */
+/*global define: false, module: false */
+
+( function( window ) {
+
+
+
+var docElem = document.documentElement;
+
+var bind = function() {};
+
+function getIEEvent( obj ) {
+  var event = window.event;
+  // add event.target
+  event.target = event.target || event.srcElement || obj;
+  return event;
+}
+
+if ( docElem.addEventListener ) {
+  bind = function( obj, type, fn ) {
+    obj.addEventListener( type, fn, false );
+  };
+} else if ( docElem.attachEvent ) {
+  bind = function( obj, type, fn ) {
+    obj[ type + fn ] = fn.handleEvent ?
+      function() {
+        var event = getIEEvent( obj );
+        fn.handleEvent.call( fn, event );
+      } :
+      function() {
+        var event = getIEEvent( obj );
+        fn.call( obj, event );
+      };
+    obj.attachEvent( "on" + type, obj[ type + fn ] );
+  };
+}
+
+var unbind = function() {};
+
+if ( docElem.removeEventListener ) {
+  unbind = function( obj, type, fn ) {
+    obj.removeEventListener( type, fn, false );
+  };
+} else if ( docElem.detachEvent ) {
+  unbind = function( obj, type, fn ) {
+    obj.detachEvent( "on" + type, obj[ type + fn ] );
+    try {
+      delete obj[ type + fn ];
+    } catch ( err ) {
+      // can't delete window object properties
+      obj[ type + fn ] = undefined;
+    }
+  };
+}
+
+var eventie = {
+  bind: bind,
+  unbind: unbind
+};
+
+// ----- module definition ----- //
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'eventie/eventie',eventie );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = eventie;
+} else {
+  // browser global
+  window.eventie = eventie;
+}
+
+})( this );
+
+/*!
+ * docReady v1.0.4
+ * Cross browser DOMContentLoaded event emitter
+ * MIT license
+ */
+
+/*jshint browser: true, strict: true, undef: true, unused: true*/
+/*global define: false, require: false, module: false */
+
+( function( window ) {
+
+
+
+var document = window.document;
+// collection of functions to be triggered on ready
+var queue = [];
+
+function docReady( fn ) {
+  // throw out non-functions
+  if ( typeof fn !== 'function' ) {
+    return;
+  }
+
+  if ( docReady.isReady ) {
+    // ready now, hit it
+    fn();
+  } else {
+    // queue function when ready
+    queue.push( fn );
+  }
+}
+
+docReady.isReady = false;
+
+// triggered on various doc ready events
+function onReady( event ) {
+  // bail if already triggered or IE8 document is not ready just yet
+  var isIE8NotReady = event.type === 'readystatechange' && document.readyState !== 'complete';
+  if ( docReady.isReady || isIE8NotReady ) {
+    return;
+  }
+
+  trigger();
+}
+
+function trigger() {
+  docReady.isReady = true;
+  // process queue
+  for ( var i=0, len = queue.length; i < len; i++ ) {
+    var fn = queue[i];
+    fn();
+  }
+}
+
+function defineDocReady( eventie ) {
+  // trigger ready if page is ready
+  if ( document.readyState === 'complete' ) {
+    trigger();
+  } else {
+    // listen for events
+    eventie.bind( document, 'DOMContentLoaded', onReady );
+    eventie.bind( document, 'readystatechange', onReady );
+    eventie.bind( window, 'load', onReady );
+  }
+
+  return docReady;
+}
+
+// transport
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'doc-ready/doc-ready',[ 'eventie/eventie' ], defineDocReady );
+} else if ( typeof exports === 'object' ) {
+  module.exports = defineDocReady( require('eventie') );
+} else {
+  // browser global
+  window.docReady = defineDocReady( window.eventie );
+}
+
+})( window );
+
+/*!
+ * EventEmitter v4.2.9 - git.io/ee
+ * Oliver Caldwell
+ * MIT license
+ * @preserve
+ */
+
+(function () {
+    
+
+    /**
+     * Class for managing events.
+     * Can be extended to provide event functionality in other classes.
+     *
+     * @class EventEmitter Manages event registering and emitting.
+     */
+    function EventEmitter() {}
+
+    // Shortcuts to improve speed and size
+    var proto = EventEmitter.prototype;
+    var exports = this;
+    var originalGlobalValue = exports.EventEmitter;
+
+    /**
+     * Finds the index of the listener for the event in its storage array.
+     *
+     * @param {Function[]} listeners Array of listeners to search through.
+     * @param {Function} listener Method to look for.
+     * @return {Number} Index of the specified listener, -1 if not found
+     * @api private
+     */
+    function indexOfListener(listeners, listener) {
+        var i = listeners.length;
+        while (i--) {
+            if (listeners[i].listener === listener) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Alias a method while keeping the context correct, to allow for overwriting of target method.
+     *
+     * @param {String} name The name of the target method.
+     * @return {Function} The aliased method
+     * @api private
+     */
+    function alias(name) {
+        return function aliasClosure() {
+            return this[name].apply(this, arguments);
+        };
+    }
+
+    /**
+     * Returns the listener array for the specified event.
+     * Will initialise the event object and listener arrays if required.
+     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
+     * Each property in the object response is an array of listener functions.
+     *
+     * @param {String|RegExp} evt Name of the event to return the listeners from.
+     * @return {Function[]|Object} All listener functions for the event.
+     */
+    proto.getListeners = function getListeners(evt) {
+        var events = this._getEvents();
+        var response;
+        var key;
+
+        // Return a concatenated array of all matching events if
+        // the selector is a regular expression.
+        if (evt instanceof RegExp) {
+            response = {};
+            for (key in events) {
+                if (events.hasOwnProperty(key) && evt.test(key)) {
+                    response[key] = events[key];
+                }
+            }
+        }
+        else {
+            response = events[evt] || (events[evt] = []);
+        }
+
+        return response;
+    };
+
+    /**
+     * Takes a list of listener objects and flattens it into a list of listener functions.
+     *
+     * @param {Object[]} listeners Raw listener objects.
+     * @return {Function[]} Just the listener functions.
+     */
+    proto.flattenListeners = function flattenListeners(listeners) {
+        var flatListeners = [];
+        var i;
+
+        for (i = 0; i < listeners.length; i += 1) {
+            flatListeners.push(listeners[i].listener);
+        }
+
+        return flatListeners;
+    };
+
+    /**
+     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
+     *
+     * @param {String|RegExp} evt Name of the event to return the listeners from.
+     * @return {Object} All listener functions for an event in an object.
+     */
+    proto.getListenersAsObject = function getListenersAsObject(evt) {
+        var listeners = this.getListeners(evt);
+        var response;
+
+        if (listeners instanceof Array) {
+            response = {};
+            response[evt] = listeners;
+        }
+
+        return response || listeners;
+    };
+
+    /**
+     * Adds a listener function to the specified event.
+     * The listener will not be added if it is a duplicate.
+     * If the listener returns true then it will be removed after it is called.
+     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
+     *
+     * @param {String|RegExp} evt Name of the event to attach the listener to.
+     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.addListener = function addListener(evt, listener) {
+        var listeners = this.getListenersAsObject(evt);
+        var listenerIsWrapped = typeof listener === 'object';
+        var key;
+
+        for (key in listeners) {
+            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
+                listeners[key].push(listenerIsWrapped ? listener : {
+                    listener: listener,
+                    once: false
+                });
+            }
+        }
+
+        return this;
+    };
+
+    /**
+     * Alias of addListener
+     */
+    proto.on = alias('addListener');
+
+    /**
+     * Semi-alias of addListener. It will add a listener that will be
+     * automatically removed after its first execution.
+     *
+     * @param {String|RegExp} evt Name of the event to attach the listener to.
+     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.addOnceListener = function addOnceListener(evt, listener) {
+        return this.addListener(evt, {
+            listener: listener,
+            once: true
+        });
+    };
+
+    /**
+     * Alias of addOnceListener.
+     */
+    proto.once = alias('addOnceListener');
+
+    /**
+     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
+     * You need to tell it what event names should be matched by a regex.
+     *
+     * @param {String} evt Name of the event to create.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.defineEvent = function defineEvent(evt) {
+        this.getListeners(evt);
+        return this;
+    };
+
+    /**
+     * Uses defineEvent to define multiple events.
+     *
+     * @param {String[]} evts An array of event names to define.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.defineEvents = function defineEvents(evts) {
+        for (var i = 0; i < evts.length; i += 1) {
+            this.defineEvent(evts[i]);
+        }
+        return this;
+    };
+
+    /**
+     * Removes a listener function from the specified event.
+     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
+     *
+     * @param {String|RegExp} evt Name of the event to remove the listener from.
+     * @param {Function} listener Method to remove from the event.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.removeListener = function removeListener(evt, listener) {
+        var listeners = this.getListenersAsObject(evt);
+        var index;
+        var key;
+
+        for (key in listeners) {
+            if (listeners.hasOwnProperty(key)) {
+                index = indexOfListener(listeners[key], listener);
+
+                if (index !== -1) {
+                    listeners[key].splice(index, 1);
+                }
+            }
+        }
+
+        return this;
+    };
+
+    /**
+     * Alias of removeListener
+     */
+    proto.off = alias('removeListener');
+
+    /**
+     * Adds listeners in bulk using the manipulateListeners method.
+     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
+     * You can also pass it a regular expression to add the array of listeners to all events that match it.
+     * Yeah, this function does quite a bit. That's probably a bad thing.
+     *
+     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
+     * @param {Function[]} [listeners] An optional array of listener functions to add.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.addListeners = function addListeners(evt, listeners) {
+        // Pass through to manipulateListeners
+        return this.manipulateListeners(false, evt, listeners);
+    };
+
+    /**
+     * Removes listeners in bulk using the manipulateListeners method.
+     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+     * You can also pass it an event name and an array of listeners to be removed.
+     * You can also pass it a regular expression to remove the listeners from all events that match it.
+     *
+     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
+     * @param {Function[]} [listeners] An optional array of listener functions to remove.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.removeListeners = function removeListeners(evt, listeners) {
+        // Pass through to manipulateListeners
+        return this.manipulateListeners(true, evt, listeners);
+    };
+
+    /**
+     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
+     * The first argument will determine if the listeners are removed (true) or added (false).
+     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+     * You can also pass it an event name and an array of listeners to be added/removed.
+     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
+     *
+     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
+     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
+     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
+        var i;
+        var value;
+        var single = remove ? this.removeListener : this.addListener;
+        var multiple = remove ? this.removeListeners : this.addListeners;
+
+        // If evt is an object then pass each of its properties to this method
+        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
+            for (i in evt) {
+                if (evt.hasOwnProperty(i) && (value = evt[i])) {
+                    // Pass the single listener straight through to the singular method
+                    if (typeof value === 'function') {
+                        single.call(this, i, value);
+                    }
+                    else {
+                        // Otherwise pass back to the multiple function
+                        multiple.call(this, i, value);
+                    }
+                }
+            }
+        }
+        else {
+            // So evt must be a string
+            // And listeners must be an array of listeners
+            // Loop over it and pass each one to the multiple method
+            i = listeners.length;
+            while (i--) {
+                single.call(this, evt, listeners[i]);
+            }
+        }
+
+        return this;
+    };
+
+    /**
+     * Removes all listeners from a specified event.
+     * If you do not specify an event then all listeners will be removed.
+     * That means every event will be emptied.
+     * You can also pass a regex to remove all events that match it.
+     *
+     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.removeEvent = function removeEvent(evt) {
+        var type = typeof evt;
+        var events = this._getEvents();
+        var key;
+
+        // Remove different things depending on the state of evt
+        if (type === 'string') {
+            // Remove all listeners for the specified event
+            delete events[evt];
+        }
+        else if (evt instanceof RegExp) {
+            // Remove all events matching the regex.
+            for (key in events) {
+                if (events.hasOwnProperty(key) && evt.test(key)) {
+                    delete events[key];
+                }
+            }
+        }
+        else {
+            // Remove all listeners in all events
+            delete this._events;
+        }
+
+        return this;
+    };
+
+    /**
+     * Alias of removeEvent.
+     *
+     * Added to mirror the node API.
+     */
+    proto.removeAllListeners = alias('removeEvent');
+
+    /**
+     * Emits an event of your choice.
+     * When emitted, every listener attached to that event will be executed.
+     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
+     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
+     * So they will not arrive within the array on the other side, they will be separate.
+     * You can also pass a regular expression to emit to all events that match it.
+     *
+     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+     * @param {Array} [args] Optional array of arguments to be passed to each listener.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.emitEvent = function emitEvent(evt, args) {
+        var listeners = this.getListenersAsObject(evt);
+        var listener;
+        var i;
+        var key;
+        var response;
+
+        for (key in listeners) {
+            if (listeners.hasOwnProperty(key)) {
+                i = listeners[key].length;
+
+                while (i--) {
+                    // If the listener returns true then it shall be removed from the event
+                    // The function is executed either with a basic call or an apply if there is an args array
+                    listener = listeners[key][i];
+
+                    if (listener.once === true) {
+                        this.removeListener(evt, listener.listener);
+                    }
+
+                    response = listener.listener.apply(this, args || []);
+
+                    if (response === this._getOnceReturnValue()) {
+                        this.removeListener(evt, listener.listener);
+                    }
+                }
+            }
+        }
+
+        return this;
+    };
+
+    /**
+     * Alias of emitEvent
+     */
+    proto.trigger = alias('emitEvent');
+
+    /**
+     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
+     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
+     *
+     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
+     * @param {...*} Optional additional arguments to be passed to each listener.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.emit = function emit(evt) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return this.emitEvent(evt, args);
+    };
+
+    /**
+     * Sets the current value to check against when executing listeners. If a
+     * listeners return value matches the one set here then it will be removed
+     * after execution. This value defaults to true.
+     *
+     * @param {*} value The new value to check for when executing listeners.
+     * @return {Object} Current instance of EventEmitter for chaining.
+     */
+    proto.setOnceReturnValue = function setOnceReturnValue(value) {
+        this._onceReturnValue = value;
+        return this;
+    };
+
+    /**
+     * Fetches the current value to check against when executing listeners. If
+     * the listeners return value matches this one then it should be removed
+     * automatically. It will return true by default.
+     *
+     * @return {*|Boolean} The current value to check for or the default, true.
+     * @api private
+     */
+    proto._getOnceReturnValue = function _getOnceReturnValue() {
+        if (this.hasOwnProperty('_onceReturnValue')) {
+            return this._onceReturnValue;
+        }
+        else {
+            return true;
+        }
+    };
+
+    /**
+     * Fetches the events object and creates one if required.
+     *
+     * @return {Object} The events storage object.
+     * @api private
+     */
+    proto._getEvents = function _getEvents() {
+        return this._events || (this._events = {});
+    };
+
+    /**
+     * Reverts the global {@link EventEmitter} to its previous value and returns a reference to this version.
+     *
+     * @return {Function} Non conflicting EventEmitter class.
+     */
+    EventEmitter.noConflict = function noConflict() {
+        exports.EventEmitter = originalGlobalValue;
+        return EventEmitter;
+    };
+
+    // Expose the class either via AMD, CommonJS or the global object
+    if (typeof define === 'function' && define.amd) {
+        define('eventEmitter/EventEmitter',[],function () {
+            return EventEmitter;
+        });
+    }
+    else if (typeof module === 'object' && module.exports){
+        module.exports = EventEmitter;
+    }
+    else {
+        exports.EventEmitter = EventEmitter;
+    }
+}.call(this));
+
+/*!
+ * getStyleProperty v1.0.4
+ * original by kangax
+ * http://perfectionkills.com/feature-testing-css-properties/
+ * MIT license
+ */
+
+/*jshint browser: true, strict: true, undef: true */
+/*global define: false, exports: false, module: false */
+
+( function( window ) {
+
+
+
+var prefixes = 'Webkit Moz ms Ms O'.split(' ');
+var docElemStyle = document.documentElement.style;
+
+function getStyleProperty( propName ) {
+  if ( !propName ) {
+    return;
+  }
+
+  // test standard property first
+  if ( typeof docElemStyle[ propName ] === 'string' ) {
+    return propName;
+  }
+
+  // capitalize
+  propName = propName.charAt(0).toUpperCase() + propName.slice(1);
+
+  // test vendor specific properties
+  var prefixed;
+  for ( var i=0, len = prefixes.length; i < len; i++ ) {
+    prefixed = prefixes[i] + propName;
+    if ( typeof docElemStyle[ prefixed ] === 'string' ) {
+      return prefixed;
+    }
+  }
+}
+
+// transport
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'get-style-property/get-style-property',[],function() {
+    return getStyleProperty;
+  });
+} else if ( typeof exports === 'object' ) {
+  // CommonJS for Component
+  module.exports = getStyleProperty;
+} else {
+  // browser global
+  window.getStyleProperty = getStyleProperty;
+}
+
+})( window );
+
+/*!
+ * getSize v1.2.0
+ * measure size of elements
+ * MIT license
+ */
+
+/*jshint browser: true, strict: true, undef: true, unused: true */
+/*global define: false, exports: false, require: false, module: false */
+
+( function( window, undefined ) {
+
+
+
+// -------------------------- helpers -------------------------- //
+
+// get a number from a string, not a percentage
+function getStyleSize( value ) {
+  var num = parseFloat( value );
+  // not a percent like '100%', and a number
+  var isValid = value.indexOf('%') === -1 && !isNaN( num );
+  return isValid && num;
+}
+
+var logError = typeof console === 'undefined' ? noop :
+  function( message ) {
+    console.error( message );
+  };
+
+// -------------------------- measurements -------------------------- //
+
+var measurements = [
+  'paddingLeft',
+  'paddingRight',
+  'paddingTop',
+  'paddingBottom',
+  'marginLeft',
+  'marginRight',
+  'marginTop',
+  'marginBottom',
+  'borderLeftWidth',
+  'borderRightWidth',
+  'borderTopWidth',
+  'borderBottomWidth'
+];
+
+function getZeroSize() {
+  var size = {
+    width: 0,
+    height: 0,
+    innerWidth: 0,
+    innerHeight: 0,
+    outerWidth: 0,
+    outerHeight: 0
+  };
+  for ( var i=0, len = measurements.length; i < len; i++ ) {
+    var measurement = measurements[i];
+    size[ measurement ] = 0;
+  }
+  return size;
+}
+
+
+
+function defineGetSize( getStyleProperty ) {
+
+// -------------------------- setup -------------------------- //
+
+var isSetup = false;
+
+var getStyle, boxSizingProp, isBoxSizeOuter;
+
+/**
+ * setup vars and functions
+ * do it on initial getSize(), rather than on script load
+ * For Firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=548397
+ */
+function setup() {
+  // setup once
+  if ( isSetup ) {
+    return;
+  }
+  isSetup = true;
+
+  var getComputedStyle = window.getComputedStyle;
+  getStyle = ( function() {
+    var getStyleFn = getComputedStyle ?
+      function( elem ) {
+        return getComputedStyle( elem, null );
+      } :
+      function( elem ) {
+        return elem.currentStyle;
+      };
+
+      return function getStyle( elem ) {
+        var style = getStyleFn( elem );
+        if ( !style ) {
+          logError( 'Style returned ' + style +
+            '. Are you running this code in a hidden iframe on Firefox? ' +
+            'See http://bit.ly/getsizeiframe' );
+        }
+        return style;
+      }
+  })();
+
+  // -------------------------- box sizing -------------------------- //
+
+  boxSizingProp = getStyleProperty('boxSizing');
+
+  /**
+   * WebKit measures the outer-width on style.width on border-box elems
+   * IE & Firefox measures the inner-width
+   */
+  if ( boxSizingProp ) {
+    var div = document.createElement('div');
+    div.style.width = '200px';
+    div.style.padding = '1px 2px 3px 4px';
+    div.style.borderStyle = 'solid';
+    div.style.borderWidth = '1px 2px 3px 4px';
+    div.style[ boxSizingProp ] = 'border-box';
+
+    var body = document.body || document.documentElement;
+    body.appendChild( div );
+    var style = getStyle( div );
+
+    isBoxSizeOuter = getStyleSize( style.width ) === 200;
+    body.removeChild( div );
+  }
+
+}
+
+// -------------------------- getSize -------------------------- //
+
+function getSize( elem ) {
+  setup();
+
+  // use querySeletor if elem is string
+  if ( typeof elem === 'string' ) {
+    elem = document.querySelector( elem );
+  }
+
+  // do not proceed on non-objects
+  if ( !elem || typeof elem !== 'object' || !elem.nodeType ) {
+    return;
+  }
+
+  var style = getStyle( elem );
+
+  // if hidden, everything is 0
+  if ( style.display === 'none' ) {
+    return getZeroSize();
+  }
+
+  var size = {};
+  size.width = elem.offsetWidth;
+  size.height = elem.offsetHeight;
+
+  var isBorderBox = size.isBorderBox = !!( boxSizingProp &&
+    style[ boxSizingProp ] && style[ boxSizingProp ] === 'border-box' );
+
+  // get all measurements
+  for ( var i=0, len = measurements.length; i < len; i++ ) {
+    var measurement = measurements[i];
+    var value = style[ measurement ];
+    value = mungeNonPixel( elem, value );
+    var num = parseFloat( value );
+    // any 'auto', 'medium' value will be 0
+    size[ measurement ] = !isNaN( num ) ? num : 0;
+  }
+
+  var paddingWidth = size.paddingLeft + size.paddingRight;
+  var paddingHeight = size.paddingTop + size.paddingBottom;
+  var marginWidth = size.marginLeft + size.marginRight;
+  var marginHeight = size.marginTop + size.marginBottom;
+  var borderWidth = size.borderLeftWidth + size.borderRightWidth;
+  var borderHeight = size.borderTopWidth + size.borderBottomWidth;
+
+  var isBorderBoxSizeOuter = isBorderBox && isBoxSizeOuter;
+
+  // overwrite width and height if we can get it from style
+  var styleWidth = getStyleSize( style.width );
+  if ( styleWidth !== false ) {
+    size.width = styleWidth +
+      // add padding and border unless it's already including it
+      ( isBorderBoxSizeOuter ? 0 : paddingWidth + borderWidth );
+  }
+
+  var styleHeight = getStyleSize( style.height );
+  if ( styleHeight !== false ) {
+    size.height = styleHeight +
+      // add padding and border unless it's already including it
+      ( isBorderBoxSizeOuter ? 0 : paddingHeight + borderHeight );
+  }
+
+  size.innerWidth = size.width - ( paddingWidth + borderWidth );
+  size.innerHeight = size.height - ( paddingHeight + borderHeight );
+
+  size.outerWidth = size.width + marginWidth;
+  size.outerHeight = size.height + marginHeight;
+
+  return size;
+}
+
+// IE8 returns percent values, not pixels
+// taken from jQuery's curCSS
+function mungeNonPixel( elem, value ) {
+  // IE8 and has percent value
+  if ( getComputedStyle || value.indexOf('%') === -1 ) {
+    return value;
+  }
+  var style = elem.style;
+  // Remember the original values
+  var left = style.left;
+  var rs = elem.runtimeStyle;
+  var rsLeft = rs && rs.left;
+
+  // Put in the new values to get a computed value out
+  if ( rsLeft ) {
+    rs.left = elem.currentStyle.left;
+  }
+  style.left = value;
+  value = style.pixelLeft;
+
+  // Revert the changed values
+  style.left = left;
+  if ( rsLeft ) {
+    rs.left = rsLeft;
+  }
+
+  return value;
+}
+
+return getSize;
+
+}
+
+// transport
+if ( typeof define === 'function' && define.amd ) {
+  // AMD for RequireJS
+  define( 'get-size/get-size',[ 'get-style-property/get-style-property' ], defineGetSize );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS for Component
+  module.exports = defineGetSize( require('desandro-get-style-property') );
+} else {
+  // browser global
+  window.getSize = defineGetSize( window.getStyleProperty );
+}
+
+})( window );
+
+/**
+ * matchesSelector v1.0.2
+ * matchesSelector( element, '.selector' )
+ * MIT license
+ */
+
+/*jshint browser: true, strict: true, undef: true, unused: true */
+/*global define: false, module: false */
+
+( function( ElemProto ) {
+
+  
+
+  var matchesMethod = ( function() {
+    // check un-prefixed
+    if ( ElemProto.matchesSelector ) {
+      return 'matchesSelector';
+    }
+    // check vendor prefixes
+    var prefixes = [ 'webkit', 'moz', 'ms', 'o' ];
+
+    for ( var i=0, len = prefixes.length; i < len; i++ ) {
+      var prefix = prefixes[i];
+      var method = prefix + 'MatchesSelector';
+      if ( ElemProto[ method ] ) {
+        return method;
+      }
+    }
+  })();
+
+  // ----- match ----- //
+
+  function match( elem, selector ) {
+    return elem[ matchesMethod ]( selector );
+  }
+
+  // ----- appendToFragment ----- //
+
+  function checkParent( elem ) {
+    // not needed if already has parent
+    if ( elem.parentNode ) {
+      return;
+    }
+    var fragment = document.createDocumentFragment();
+    fragment.appendChild( elem );
+  }
+
+  // ----- query ----- //
+
+  // fall back to using QSA
+  // thx @jonathantneal https://gist.github.com/3062955
+  function query( elem, selector ) {
+    // append to fragment if no parent
+    checkParent( elem );
+
+    // match elem with all selected elems of parent
+    var elems = elem.parentNode.querySelectorAll( selector );
+    for ( var i=0, len = elems.length; i < len; i++ ) {
+      // return true if match
+      if ( elems[i] === elem ) {
+        return true;
+      }
+    }
+    // otherwise return false
+    return false;
+  }
+
+  // ----- matchChild ----- //
+
+  function matchChild( elem, selector ) {
+    checkParent( elem );
+    return match( elem, selector );
+  }
+
+  // ----- matchesSelector ----- //
+
+  var matchesSelector;
+
+  if ( matchesMethod ) {
+    // IE9 supports matchesSelector, but doesn't work on orphaned elems
+    // check for that
+    var div = document.createElement('div');
+    var supportsOrphans = match( div, 'div' );
+    matchesSelector = supportsOrphans ? match : matchChild;
+  } else {
+    matchesSelector = query;
+  }
+
+  // transport
+  if ( typeof define === 'function' && define.amd ) {
+    // AMD
+    define( 'matches-selector/matches-selector',[],function() {
+      return matchesSelector;
+    });
+  } else if ( typeof exports === 'object' ) {
+    module.exports = matchesSelector;
+  }
+  else {
+    // browser global
+    window.matchesSelector = matchesSelector;
+  }
+
+})( Element.prototype );
+
+/**
+ * Outlayer Item
+ */
+
+( function( window ) {
+
+
+
+// ----- get style ----- //
+
+var getComputedStyle = window.getComputedStyle;
+var getStyle = getComputedStyle ?
+  function( elem ) {
+    return getComputedStyle( elem, null );
+  } :
+  function( elem ) {
+    return elem.currentStyle;
+  };
+
+
+// extend objects
+function extend( a, b ) {
+  for ( var prop in b ) {
+    a[ prop ] = b[ prop ];
+  }
+  return a;
+}
+
+function isEmptyObj( obj ) {
+  for ( var prop in obj ) {
+    return false;
+  }
+  prop = null;
+  return true;
+}
+
+// http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/
+function toDash( str ) {
+  return str.replace( /([A-Z])/g, function( $1 ){
+    return '-' + $1.toLowerCase();
+  });
+}
+
+// -------------------------- Outlayer definition -------------------------- //
+
+function outlayerItemDefinition( EventEmitter, getSize, getStyleProperty ) {
+
+// -------------------------- CSS3 support -------------------------- //
+
+var transitionProperty = getStyleProperty('transition');
+var transformProperty = getStyleProperty('transform');
+var supportsCSS3 = transitionProperty && transformProperty;
+var is3d = !!getStyleProperty('perspective');
+
+var transitionEndEvent = {
+  WebkitTransition: 'webkitTransitionEnd',
+  MozTransition: 'transitionend',
+  OTransition: 'otransitionend',
+  transition: 'transitionend'
+}[ transitionProperty ];
+
+// properties that could have vendor prefix
+var prefixableProperties = [
+  'transform',
+  'transition',
+  'transitionDuration',
+  'transitionProperty'
+];
+
+// cache all vendor properties
+var vendorProperties = ( function() {
+  var cache = {};
+  for ( var i=0, len = prefixableProperties.length; i < len; i++ ) {
+    var prop = prefixableProperties[i];
+    var supportedProp = getStyleProperty( prop );
+    if ( supportedProp && supportedProp !== prop ) {
+      cache[ prop ] = supportedProp;
+    }
+  }
+  return cache;
+})();
+
+// -------------------------- Item -------------------------- //
+
+function Item( element, layout ) {
+  if ( !element ) {
+    return;
+  }
+
+  this.element = element;
+  // parent layout class, i.e. Masonry, Isotope, or Packery
+  this.layout = layout;
+  this.position = {
+    x: 0,
+    y: 0
+  };
+
+  this._create();
+}
+
+// inherit EventEmitter
+extend( Item.prototype, EventEmitter.prototype );
+
+Item.prototype._create = function() {
+  // transition objects
+  this._transn = {
+    ingProperties: {},
+    clean: {},
+    onEnd: {}
+  };
+
+  this.css({
+    position: 'absolute'
+  });
+};
+
+// trigger specified handler for event type
+Item.prototype.handleEvent = function( event ) {
+  var method = 'on' + event.type;
+  if ( this[ method ] ) {
+    this[ method ]( event );
+  }
+};
+
+Item.prototype.getSize = function() {
+  this.size = getSize( this.element );
+};
+
+/**
+ * apply CSS styles to element
+ * @param {Object} style
+ */
+Item.prototype.css = function( style ) {
+  var elemStyle = this.element.style;
+
+  for ( var prop in style ) {
+    // use vendor property if available
+    var supportedProp = vendorProperties[ prop ] || prop;
+    elemStyle[ supportedProp ] = style[ prop ];
+  }
+};
+
+ // measure position, and sets it
+Item.prototype.getPosition = function() {
+  var style = getStyle( this.element );
+  var layoutOptions = this.layout.options;
+  var isOriginLeft = layoutOptions.isOriginLeft;
+  var isOriginTop = layoutOptions.isOriginTop;
+  var x = parseInt( style[ isOriginLeft ? 'left' : 'right' ], 10 );
+  var y = parseInt( style[ isOriginTop ? 'top' : 'bottom' ], 10 );
+
+  // clean up 'auto' or other non-integer values
+  x = isNaN( x ) ? 0 : x;
+  y = isNaN( y ) ? 0 : y;
+  // remove padding from measurement
+  var layoutSize = this.layout.size;
+  x -= isOriginLeft ? layoutSize.paddingLeft : layoutSize.paddingRight;
+  y -= isOriginTop ? layoutSize.paddingTop : layoutSize.paddingBottom;
+
+  this.position.x = x;
+  this.position.y = y;
+};
+
+// set settled position, apply padding
+Item.prototype.layoutPosition = function() {
+  var layoutSize = this.layout.size;
+  var layoutOptions = this.layout.options;
+  var style = {};
+
+  if ( layoutOptions.isOriginLeft ) {
+    style.left = ( this.position.x + layoutSize.paddingLeft ) + 'px';
+    // reset other property
+    style.right = '';
+  } else {
+    style.right = ( this.position.x + layoutSize.paddingRight ) + 'px';
+    style.left = '';
+  }
+
+  if ( layoutOptions.isOriginTop ) {
+    style.top = ( this.position.y + layoutSize.paddingTop ) + 'px';
+    style.bottom = '';
+  } else {
+    style.bottom = ( this.position.y + layoutSize.paddingBottom ) + 'px';
+    style.top = '';
+  }
+
+  this.css( style );
+  this.emitEvent( 'layout', [ this ] );
+};
+
+
+// transform translate function
+var translate = is3d ?
+  function( x, y ) {
+    return 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+  } :
+  function( x, y ) {
+    return 'translate(' + x + 'px, ' + y + 'px)';
+  };
+
+
+Item.prototype._transitionTo = function( x, y ) {
+  this.getPosition();
+  // get current x & y from top/left
+  var curX = this.position.x;
+  var curY = this.position.y;
+
+  var compareX = parseInt( x, 10 );
+  var compareY = parseInt( y, 10 );
+  var didNotMove = compareX === this.position.x && compareY === this.position.y;
+
+  // save end position
+  this.setPosition( x, y );
+
+  // if did not move and not transitioning, just go to layout
+  if ( didNotMove && !this.isTransitioning ) {
+    this.layoutPosition();
+    return;
+  }
+
+  var transX = x - curX;
+  var transY = y - curY;
+  var transitionStyle = {};
+  // flip cooridinates if origin on right or bottom
+  var layoutOptions = this.layout.options;
+  transX = layoutOptions.isOriginLeft ? transX : -transX;
+  transY = layoutOptions.isOriginTop ? transY : -transY;
+  transitionStyle.transform = translate( transX, transY );
+
+  this.transition({
+    to: transitionStyle,
+    onTransitionEnd: {
+      transform: this.layoutPosition
+    },
+    isCleaning: true
+  });
+};
+
+// non transition + transform support
+Item.prototype.goTo = function( x, y ) {
+  this.setPosition( x, y );
+  this.layoutPosition();
+};
+
+// use transition and transforms if supported
+Item.prototype.moveTo = supportsCSS3 ?
+  Item.prototype._transitionTo : Item.prototype.goTo;
+
+Item.prototype.setPosition = function( x, y ) {
+  this.position.x = parseInt( x, 10 );
+  this.position.y = parseInt( y, 10 );
+};
+
+// ----- transition ----- //
+
+/**
+ * @param {Object} style - CSS
+ * @param {Function} onTransitionEnd
+ */
+
+// non transition, just trigger callback
+Item.prototype._nonTransition = function( args ) {
+  this.css( args.to );
+  if ( args.isCleaning ) {
+    this._removeStyles( args.to );
+  }
+  for ( var prop in args.onTransitionEnd ) {
+    args.onTransitionEnd[ prop ].call( this );
+  }
+};
+
+/**
+ * proper transition
+ * @param {Object} args - arguments
+ *   @param {Object} to - style to transition to
+ *   @param {Object} from - style to start transition from
+ *   @param {Boolean} isCleaning - removes transition styles after transition
+ *   @param {Function} onTransitionEnd - callback
+ */
+Item.prototype._transition = function( args ) {
+  // redirect to nonTransition if no transition duration
+  if ( !parseFloat( this.layout.options.transitionDuration ) ) {
+    this._nonTransition( args );
+    return;
+  }
+
+  var _transition = this._transn;
+  // keep track of onTransitionEnd callback by css property
+  for ( var prop in args.onTransitionEnd ) {
+    _transition.onEnd[ prop ] = args.onTransitionEnd[ prop ];
+  }
+  // keep track of properties that are transitioning
+  for ( prop in args.to ) {
+    _transition.ingProperties[ prop ] = true;
+    // keep track of properties to clean up when transition is done
+    if ( args.isCleaning ) {
+      _transition.clean[ prop ] = true;
+    }
+  }
+
+  // set from styles
+  if ( args.from ) {
+    this.css( args.from );
+    // force redraw. http://blog.alexmaccaw.com/css-transitions
+    var h = this.element.offsetHeight;
+    // hack for JSHint to hush about unused var
+    h = null;
+  }
+  // enable transition
+  this.enableTransition( args.to );
+  // set styles that are transitioning
+  this.css( args.to );
+
+  this.isTransitioning = true;
+
+};
+
+var itemTransitionProperties = transformProperty && ( toDash( transformProperty ) +
+  ',opacity' );
+
+Item.prototype.enableTransition = function(/* style */) {
+  // only enable if not already transitioning
+  // bug in IE10 were re-setting transition style will prevent
+  // transitionend event from triggering
+  if ( this.isTransitioning ) {
+    return;
+  }
+
+  // make transition: foo, bar, baz from style object
+  // TODO uncomment this bit when IE10 bug is resolved
+  // var transitionValue = [];
+  // for ( var prop in style ) {
+  //   // dash-ify camelCased properties like WebkitTransition
+  //   transitionValue.push( toDash( prop ) );
+  // }
+  // enable transition styles
+  // HACK always enable transform,opacity for IE10
+  this.css({
+    transitionProperty: itemTransitionProperties,
+    transitionDuration: this.layout.options.transitionDuration
+  });
+  // listen for transition end event
+  this.element.addEventListener( transitionEndEvent, this, false );
+};
+
+Item.prototype.transition = Item.prototype[ transitionProperty ? '_transition' : '_nonTransition' ];
+
+// ----- events ----- //
+
+Item.prototype.onwebkitTransitionEnd = function( event ) {
+  this.ontransitionend( event );
+};
+
+Item.prototype.onotransitionend = function( event ) {
+  this.ontransitionend( event );
+};
+
+// properties that I munge to make my life easier
+var dashedVendorProperties = {
+  '-webkit-transform': 'transform',
+  '-moz-transform': 'transform',
+  '-o-transform': 'transform'
+};
+
+Item.prototype.ontransitionend = function( event ) {
+  // disregard bubbled events from children
+  if ( event.target !== this.element ) {
+    return;
+  }
+  var _transition = this._transn;
+  // get property name of transitioned property, convert to prefix-free
+  var propertyName = dashedVendorProperties[ event.propertyName ] || event.propertyName;
+
+  // remove property that has completed transitioning
+  delete _transition.ingProperties[ propertyName ];
+  // check if any properties are still transitioning
+  if ( isEmptyObj( _transition.ingProperties ) ) {
+    // all properties have completed transitioning
+    this.disableTransition();
+  }
+  // clean style
+  if ( propertyName in _transition.clean ) {
+    // clean up style
+    this.element.style[ event.propertyName ] = '';
+    delete _transition.clean[ propertyName ];
+  }
+  // trigger onTransitionEnd callback
+  if ( propertyName in _transition.onEnd ) {
+    var onTransitionEnd = _transition.onEnd[ propertyName ];
+    onTransitionEnd.call( this );
+    delete _transition.onEnd[ propertyName ];
+  }
+
+  this.emitEvent( 'transitionEnd', [ this ] );
+};
+
+Item.prototype.disableTransition = function() {
+  this.removeTransitionStyles();
+  this.element.removeEventListener( transitionEndEvent, this, false );
+  this.isTransitioning = false;
+};
+
+/**
+ * removes style property from element
+ * @param {Object} style
+**/
+Item.prototype._removeStyles = function( style ) {
+  // clean up transition styles
+  var cleanStyle = {};
+  for ( var prop in style ) {
+    cleanStyle[ prop ] = '';
+  }
+  this.css( cleanStyle );
+};
+
+var cleanTransitionStyle = {
+  transitionProperty: '',
+  transitionDuration: ''
+};
+
+Item.prototype.removeTransitionStyles = function() {
+  // remove transition
+  this.css( cleanTransitionStyle );
+};
+
+// ----- show/hide/remove ----- //
+
+// remove element from DOM
+Item.prototype.removeElem = function() {
+  this.element.parentNode.removeChild( this.element );
+  this.emitEvent( 'remove', [ this ] );
+};
+
+Item.prototype.remove = function() {
+  // just remove element if no transition support or no transition
+  if ( !transitionProperty || !parseFloat( this.layout.options.transitionDuration ) ) {
+    this.removeElem();
+    return;
+  }
+
+  // start transition
+  var _this = this;
+  this.on( 'transitionEnd', function() {
+    _this.removeElem();
+    return true; // bind once
+  });
+  this.hide();
+};
+
+Item.prototype.reveal = function() {
+  delete this.isHidden;
+  // remove display: none
+  this.css({ display: '' });
+
+  var options = this.layout.options;
+  this.transition({
+    from: options.hiddenStyle,
+    to: options.visibleStyle,
+    isCleaning: true
+  });
+};
+
+Item.prototype.hide = function() {
+  // set flag
+  this.isHidden = true;
+  // remove display: none
+  this.css({ display: '' });
+
+  var options = this.layout.options;
+  this.transition({
+    from: options.visibleStyle,
+    to: options.hiddenStyle,
+    // keep hidden stuff hidden
+    isCleaning: true,
+    onTransitionEnd: {
+      opacity: function() {
+        // check if still hidden
+        // during transition, item may have been un-hidden
+        if ( this.isHidden ) {
+          this.css({ display: 'none' });
+        }
+      }
+    }
+  });
+};
+
+Item.prototype.destroy = function() {
+  this.css({
+    position: '',
+    left: '',
+    right: '',
+    top: '',
+    bottom: '',
+    transition: '',
+    transform: ''
+  });
+};
+
+return Item;
+
+}
+
+// -------------------------- transport -------------------------- //
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'outlayer/item',[
+      'eventEmitter/EventEmitter',
+      'get-size/get-size',
+      'get-style-property/get-style-property'
+    ],
+    outlayerItemDefinition );
+} else if (typeof exports === 'object') {
+  // CommonJS
+  module.exports = outlayerItemDefinition(
+    require('wolfy87-eventemitter'),
+    require('get-size'),
+    require('desandro-get-style-property')
+  );
+} else {
+  // browser global
+  window.Outlayer = {};
+  window.Outlayer.Item = outlayerItemDefinition(
+    window.EventEmitter,
+    window.getSize,
+    window.getStyleProperty
+  );
+}
+
+})( window );
+
+/*!
+ * Outlayer v1.3.0
+ * the brains and guts of a layout library
+ * MIT license
+ */
+
+( function( window ) {
+
+
+
+// ----- vars ----- //
+
+var document = window.document;
+var console = window.console;
+var jQuery = window.jQuery;
+var noop = function() {};
+
+// -------------------------- helpers -------------------------- //
+
+// extend objects
+function extend( a, b ) {
+  for ( var prop in b ) {
+    a[ prop ] = b[ prop ];
+  }
+  return a;
+}
+
+
+var objToString = Object.prototype.toString;
+function isArray( obj ) {
+  return objToString.call( obj ) === '[object Array]';
+}
+
+// turn element or nodeList into an array
+function makeArray( obj ) {
+  var ary = [];
+  if ( isArray( obj ) ) {
+    // use object if already an array
+    ary = obj;
+  } else if ( obj && typeof obj.length === 'number' ) {
+    // convert nodeList to array
+    for ( var i=0, len = obj.length; i < len; i++ ) {
+      ary.push( obj[i] );
+    }
+  } else {
+    // array of single index
+    ary.push( obj );
+  }
+  return ary;
+}
+
+// http://stackoverflow.com/a/384380/182183
+var isElement = ( typeof HTMLElement === 'function' || typeof HTMLElement === 'object' ) ?
+  function isElementDOM2( obj ) {
+    return obj instanceof HTMLElement;
+  } :
+  function isElementQuirky( obj ) {
+    return obj && typeof obj === 'object' &&
+      obj.nodeType === 1 && typeof obj.nodeName === 'string';
+  };
+
+// index of helper cause IE8
+var indexOf = Array.prototype.indexOf ? function( ary, obj ) {
+    return ary.indexOf( obj );
+  } : function( ary, obj ) {
+    for ( var i=0, len = ary.length; i < len; i++ ) {
+      if ( ary[i] === obj ) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+function removeFrom( obj, ary ) {
+  var index = indexOf( ary, obj );
+  if ( index !== -1 ) {
+    ary.splice( index, 1 );
+  }
+}
+
+// http://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/
+function toDashed( str ) {
+  return str.replace( /(.)([A-Z])/g, function( match, $1, $2 ) {
+    return $1 + '-' + $2;
+  }).toLowerCase();
+}
+
+
+function outlayerDefinition( eventie, docReady, EventEmitter, getSize, matchesSelector, Item ) {
+
+// -------------------------- Outlayer -------------------------- //
+
+// globally unique identifiers
+var GUID = 0;
+// internal store of all Outlayer intances
+var instances = {};
+
+
+/**
+ * @param {Element, String} element
+ * @param {Object} options
+ * @constructor
+ */
+function Outlayer( element, options ) {
+  // use element as selector string
+  if ( typeof element === 'string' ) {
+    element = document.querySelector( element );
+  }
+
+  // bail out if not proper element
+  if ( !element || !isElement( element ) ) {
+    if ( console ) {
+      console.error( 'Bad ' + this.constructor.namespace + ' element: ' + element );
+    }
+    return;
+  }
+
+  this.element = element;
+
+  // options
+  this.options = extend( {}, this.constructor.defaults );
+  this.option( options );
+
+  // add id for Outlayer.getFromElement
+  var id = ++GUID;
+  this.element.outlayerGUID = id; // expando
+  instances[ id ] = this; // associate via id
+
+  // kick it off
+  this._create();
+
+  if ( this.options.isInitLayout ) {
+    this.layout();
+  }
+}
+
+// settings are for internal use only
+Outlayer.namespace = 'outlayer';
+Outlayer.Item = Item;
+
+// default options
+Outlayer.defaults = {
+  containerStyle: {
+    position: 'relative'
+  },
+  isInitLayout: true,
+  isOriginLeft: true,
+  isOriginTop: true,
+  isResizeBound: true,
+  isResizingContainer: true,
+  // item options
+  transitionDuration: '0.4s',
+  hiddenStyle: {
+    opacity: 0,
+    transform: 'scale(0.001)'
+  },
+  visibleStyle: {
+    opacity: 1,
+    transform: 'scale(1)'
+  }
+};
+
+// inherit EventEmitter
+extend( Outlayer.prototype, EventEmitter.prototype );
+
+/**
+ * set options
+ * @param {Object} opts
+ */
+Outlayer.prototype.option = function( opts ) {
+  extend( this.options, opts );
+};
+
+Outlayer.prototype._create = function() {
+  // get items from children
+  this.reloadItems();
+  // elements that affect layout, but are not laid out
+  this.stamps = [];
+  this.stamp( this.options.stamp );
+  // set container style
+  extend( this.element.style, this.options.containerStyle );
+
+  // bind resize method
+  if ( this.options.isResizeBound ) {
+    this.bindResize();
+  }
+};
+
+// goes through all children again and gets bricks in proper order
+Outlayer.prototype.reloadItems = function() {
+  // collection of item elements
+  this.items = this._itemize( this.element.children );
+};
+
+
+/**
+ * turn elements into Outlayer.Items to be used in layout
+ * @param {Array or NodeList or HTMLElement} elems
+ * @returns {Array} items - collection of new Outlayer Items
+ */
+Outlayer.prototype._itemize = function( elems ) {
+
+  var itemElems = this._filterFindItemElements( elems );
+  var Item = this.constructor.Item;
+
+  // create new Outlayer Items for collection
+  var items = [];
+  for ( var i=0, len = itemElems.length; i < len; i++ ) {
+    var elem = itemElems[i];
+    var item = new Item( elem, this );
+    items.push( item );
+  }
+
+  return items;
+};
+
+/**
+ * get item elements to be used in layout
+ * @param {Array or NodeList or HTMLElement} elems
+ * @returns {Array} items - item elements
+ */
+Outlayer.prototype._filterFindItemElements = function( elems ) {
+  // make array of elems
+  elems = makeArray( elems );
+  var itemSelector = this.options.itemSelector;
+  var itemElems = [];
+
+  for ( var i=0, len = elems.length; i < len; i++ ) {
+    var elem = elems[i];
+    // check that elem is an actual element
+    if ( !isElement( elem ) ) {
+      continue;
+    }
+    // filter & find items if we have an item selector
+    if ( itemSelector ) {
+      // filter siblings
+      if ( matchesSelector( elem, itemSelector ) ) {
+        itemElems.push( elem );
+      }
+      // find children
+      var childElems = elem.querySelectorAll( itemSelector );
+      // concat childElems to filterFound array
+      for ( var j=0, jLen = childElems.length; j < jLen; j++ ) {
+        itemElems.push( childElems[j] );
+      }
+    } else {
+      itemElems.push( elem );
+    }
+  }
+
+  return itemElems;
+};
+
+/**
+ * getter method for getting item elements
+ * @returns {Array} elems - collection of item elements
+ */
+Outlayer.prototype.getItemElements = function() {
+  var elems = [];
+  for ( var i=0, len = this.items.length; i < len; i++ ) {
+    elems.push( this.items[i].element );
+  }
+  return elems;
+};
+
+// ----- init & layout ----- //
+
+/**
+ * lays out all items
+ */
+Outlayer.prototype.layout = function() {
+  this._resetLayout();
+  this._manageStamps();
+
+  // don't animate first layout
+  var isInstant = this.options.isLayoutInstant !== undefined ?
+    this.options.isLayoutInstant : !this._isLayoutInited;
+  this.layoutItems( this.items, isInstant );
+
+  // flag for initalized
+  this._isLayoutInited = true;
+};
+
+// _init is alias for layout
+Outlayer.prototype._init = Outlayer.prototype.layout;
+
+/**
+ * logic before any new layout
+ */
+Outlayer.prototype._resetLayout = function() {
+  this.getSize();
+};
+
+
+Outlayer.prototype.getSize = function() {
+  this.size = getSize( this.element );
+};
+
+/**
+ * get measurement from option, for columnWidth, rowHeight, gutter
+ * if option is String -> get element from selector string, & get size of element
+ * if option is Element -> get size of element
+ * else use option as a number
+ *
+ * @param {String} measurement
+ * @param {String} size - width or height
+ * @private
+ */
+Outlayer.prototype._getMeasurement = function( measurement, size ) {
+  var option = this.options[ measurement ];
+  var elem;
+  if ( !option ) {
+    // default to 0
+    this[ measurement ] = 0;
+  } else {
+    // use option as an element
+    if ( typeof option === 'string' ) {
+      elem = this.element.querySelector( option );
+    } else if ( isElement( option ) ) {
+      elem = option;
+    }
+    // use size of element, if element
+    this[ measurement ] = elem ? getSize( elem )[ size ] : option;
+  }
+};
+
+/**
+ * layout a collection of item elements
+ * @api public
+ */
+Outlayer.prototype.layoutItems = function( items, isInstant ) {
+  items = this._getItemsForLayout( items );
+
+  this._layoutItems( items, isInstant );
+
+  this._postLayout();
+};
+
+/**
+ * get the items to be laid out
+ * you may want to skip over some items
+ * @param {Array} items
+ * @returns {Array} items
+ */
+Outlayer.prototype._getItemsForLayout = function( items ) {
+  var layoutItems = [];
+  for ( var i=0, len = items.length; i < len; i++ ) {
+    var item = items[i];
+    if ( !item.isIgnored ) {
+      layoutItems.push( item );
+    }
+  }
+  return layoutItems;
+};
+
+/**
+ * layout items
+ * @param {Array} items
+ * @param {Boolean} isInstant
+ */
+Outlayer.prototype._layoutItems = function( items, isInstant ) {
+  var _this = this;
+  function onItemsLayout() {
+    _this.emitEvent( 'layoutComplete', [ _this, items ] );
+  }
+
+  if ( !items || !items.length ) {
+    // no items, emit event with empty array
+    onItemsLayout();
+    return;
+  }
+
+  // emit layoutComplete when done
+  this._itemsOn( items, 'layout', onItemsLayout );
+
+  var queue = [];
+
+  for ( var i=0, len = items.length; i < len; i++ ) {
+    var item = items[i];
+    // get x/y object from method
+    var position = this._getItemLayoutPosition( item );
+    // enqueue
+    position.item = item;
+    position.isInstant = isInstant || item.isLayoutInstant;
+    queue.push( position );
+  }
+
+  this._processLayoutQueue( queue );
+};
+
+/**
+ * get item layout position
+ * @param {Outlayer.Item} item
+ * @returns {Object} x and y position
+ */
+Outlayer.prototype._getItemLayoutPosition = function( /* item */ ) {
+  return {
+    x: 0,
+    y: 0
+  };
+};
+
+/**
+ * iterate over array and position each item
+ * Reason being - separating this logic prevents 'layout invalidation'
+ * thx @paul_irish
+ * @param {Array} queue
+ */
+Outlayer.prototype._processLayoutQueue = function( queue ) {
+  for ( var i=0, len = queue.length; i < len; i++ ) {
+    var obj = queue[i];
+    this._positionItem( obj.item, obj.x, obj.y, obj.isInstant );
+  }
+};
+
+/**
+ * Sets position of item in DOM
+ * @param {Outlayer.Item} item
+ * @param {Number} x - horizontal position
+ * @param {Number} y - vertical position
+ * @param {Boolean} isInstant - disables transitions
+ */
+Outlayer.prototype._positionItem = function( item, x, y, isInstant ) {
+  if ( isInstant ) {
+    // if not transition, just set CSS
+    item.goTo( x, y );
+  } else {
+    item.moveTo( x, y );
+  }
+};
+
+/**
+ * Any logic you want to do after each layout,
+ * i.e. size the container
+ */
+Outlayer.prototype._postLayout = function() {
+  this.resizeContainer();
+};
+
+Outlayer.prototype.resizeContainer = function() {
+  if ( !this.options.isResizingContainer ) {
+    return;
+  }
+  var size = this._getContainerSize();
+  if ( size ) {
+    this._setContainerMeasure( size.width, true );
+    this._setContainerMeasure( size.height, false );
+  }
+};
+
+/**
+ * Sets width or height of container if returned
+ * @returns {Object} size
+ *   @param {Number} width
+ *   @param {Number} height
+ */
+Outlayer.prototype._getContainerSize = noop;
+
+/**
+ * @param {Number} measure - size of width or height
+ * @param {Boolean} isWidth
+ */
+Outlayer.prototype._setContainerMeasure = function( measure, isWidth ) {
+  if ( measure === undefined ) {
+    return;
+  }
+
+  var elemSize = this.size;
+  // add padding and border width if border box
+  if ( elemSize.isBorderBox ) {
+    measure += isWidth ? elemSize.paddingLeft + elemSize.paddingRight +
+      elemSize.borderLeftWidth + elemSize.borderRightWidth :
+      elemSize.paddingBottom + elemSize.paddingTop +
+      elemSize.borderTopWidth + elemSize.borderBottomWidth;
+  }
+
+  measure = Math.max( measure, 0 );
+  this.element.style[ isWidth ? 'width' : 'height' ] = measure + 'px';
+};
+
+/**
+ * trigger a callback for a collection of items events
+ * @param {Array} items - Outlayer.Items
+ * @param {String} eventName
+ * @param {Function} callback
+ */
+Outlayer.prototype._itemsOn = function( items, eventName, callback ) {
+  var doneCount = 0;
+  var count = items.length;
+  // event callback
+  var _this = this;
+  function tick() {
+    doneCount++;
+    if ( doneCount === count ) {
+      callback.call( _this );
+    }
+    return true; // bind once
+  }
+  // bind callback
+  for ( var i=0, len = items.length; i < len; i++ ) {
+    var item = items[i];
+    item.on( eventName, tick );
+  }
+};
+
+// -------------------------- ignore & stamps -------------------------- //
+
+
+/**
+ * keep item in collection, but do not lay it out
+ * ignored items do not get skipped in layout
+ * @param {Element} elem
+ */
+Outlayer.prototype.ignore = function( elem ) {
+  var item = this.getItem( elem );
+  if ( item ) {
+    item.isIgnored = true;
+  }
+};
+
+/**
+ * return item to layout collection
+ * @param {Element} elem
+ */
+Outlayer.prototype.unignore = function( elem ) {
+  var item = this.getItem( elem );
+  if ( item ) {
+    delete item.isIgnored;
+  }
+};
+
+/**
+ * adds elements to stamps
+ * @param {NodeList, Array, Element, or String} elems
+ */
+Outlayer.prototype.stamp = function( elems ) {
+  elems = this._find( elems );
+  if ( !elems ) {
+    return;
+  }
+
+  this.stamps = this.stamps.concat( elems );
+  // ignore
+  for ( var i=0, len = elems.length; i < len; i++ ) {
+    var elem = elems[i];
+    this.ignore( elem );
+  }
+};
+
+/**
+ * removes elements to stamps
+ * @param {NodeList, Array, or Element} elems
+ */
+Outlayer.prototype.unstamp = function( elems ) {
+  elems = this._find( elems );
+  if ( !elems ){
+    return;
+  }
+
+  for ( var i=0, len = elems.length; i < len; i++ ) {
+    var elem = elems[i];
+    // filter out removed stamp elements
+    removeFrom( elem, this.stamps );
+    this.unignore( elem );
+  }
+
+};
+
+/**
+ * finds child elements
+ * @param {NodeList, Array, Element, or String} elems
+ * @returns {Array} elems
+ */
+Outlayer.prototype._find = function( elems ) {
+  if ( !elems ) {
+    return;
+  }
+  // if string, use argument as selector string
+  if ( typeof elems === 'string' ) {
+    elems = this.element.querySelectorAll( elems );
+  }
+  elems = makeArray( elems );
+  return elems;
+};
+
+Outlayer.prototype._manageStamps = function() {
+  if ( !this.stamps || !this.stamps.length ) {
+    return;
+  }
+
+  this._getBoundingRect();
+
+  for ( var i=0, len = this.stamps.length; i < len; i++ ) {
+    var stamp = this.stamps[i];
+    this._manageStamp( stamp );
+  }
+};
+
+// update boundingLeft / Top
+Outlayer.prototype._getBoundingRect = function() {
+  // get bounding rect for container element
+  var boundingRect = this.element.getBoundingClientRect();
+  var size = this.size;
+  this._boundingRect = {
+    left: boundingRect.left + size.paddingLeft + size.borderLeftWidth,
+    top: boundingRect.top + size.paddingTop + size.borderTopWidth,
+    right: boundingRect.right - ( size.paddingRight + size.borderRightWidth ),
+    bottom: boundingRect.bottom - ( size.paddingBottom + size.borderBottomWidth )
+  };
+};
+
+/**
+ * @param {Element} stamp
+**/
+Outlayer.prototype._manageStamp = noop;
+
+/**
+ * get x/y position of element relative to container element
+ * @param {Element} elem
+ * @returns {Object} offset - has left, top, right, bottom
+ */
+Outlayer.prototype._getElementOffset = function( elem ) {
+  var boundingRect = elem.getBoundingClientRect();
+  var thisRect = this._boundingRect;
+  var size = getSize( elem );
+  var offset = {
+    left: boundingRect.left - thisRect.left - size.marginLeft,
+    top: boundingRect.top - thisRect.top - size.marginTop,
+    right: thisRect.right - boundingRect.right - size.marginRight,
+    bottom: thisRect.bottom - boundingRect.bottom - size.marginBottom
+  };
+  return offset;
+};
+
+// -------------------------- resize -------------------------- //
+
+// enable event handlers for listeners
+// i.e. resize -> onresize
+Outlayer.prototype.handleEvent = function( event ) {
+  var method = 'on' + event.type;
+  if ( this[ method ] ) {
+    this[ method ]( event );
+  }
+};
+
+/**
+ * Bind layout to window resizing
+ */
+Outlayer.prototype.bindResize = function() {
+  // bind just one listener
+  if ( this.isResizeBound ) {
+    return;
+  }
+  eventie.bind( window, 'resize', this );
+  this.isResizeBound = true;
+};
+
+/**
+ * Unbind layout to window resizing
+ */
+Outlayer.prototype.unbindResize = function() {
+  if ( this.isResizeBound ) {
+    eventie.unbind( window, 'resize', this );
+  }
+  this.isResizeBound = false;
+};
+
+// original debounce by John Hann
+// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+
+// this fires every resize
+Outlayer.prototype.onresize = function() {
+  if ( this.resizeTimeout ) {
+    clearTimeout( this.resizeTimeout );
+  }
+
+  var _this = this;
+  function delayed() {
+    _this.resize();
+    delete _this.resizeTimeout;
+  }
+
+  this.resizeTimeout = setTimeout( delayed, 100 );
+};
+
+// debounced, layout on resize
+Outlayer.prototype.resize = function() {
+  // don't trigger if size did not change
+  // or if resize was unbound. See #9
+  if ( !this.isResizeBound || !this.needsResizeLayout() ) {
+    return;
+  }
+
+  this.layout();
+};
+
+/**
+ * check if layout is needed post layout
+ * @returns Boolean
+ */
+Outlayer.prototype.needsResizeLayout = function() {
+  var size = getSize( this.element );
+  // check that this.size and size are there
+  // IE8 triggers resize on body size change, so they might not be
+  var hasSizes = this.size && size;
+  return hasSizes && size.innerWidth !== this.size.innerWidth;
+};
+
+// -------------------------- methods -------------------------- //
+
+/**
+ * add items to Outlayer instance
+ * @param {Array or NodeList or Element} elems
+ * @returns {Array} items - Outlayer.Items
+**/
+Outlayer.prototype.addItems = function( elems ) {
+  var items = this._itemize( elems );
+  // add items to collection
+  if ( items.length ) {
+    this.items = this.items.concat( items );
+  }
+  return items;
+};
+
+/**
+ * Layout newly-appended item elements
+ * @param {Array or NodeList or Element} elems
+ */
+Outlayer.prototype.appended = function( elems ) {
+  var items = this.addItems( elems );
+  if ( !items.length ) {
+    return;
+  }
+  // layout and reveal just the new items
+  this.layoutItems( items, true );
+  this.reveal( items );
+};
+
+/**
+ * Layout prepended elements
+ * @param {Array or NodeList or Element} elems
+ */
+Outlayer.prototype.prepended = function( elems ) {
+  var items = this._itemize( elems );
+  if ( !items.length ) {
+    return;
+  }
+  // add items to beginning of collection
+  var previousItems = this.items.slice(0);
+  this.items = items.concat( previousItems );
+  // start new layout
+  this._resetLayout();
+  this._manageStamps();
+  // layout new stuff without transition
+  this.layoutItems( items, true );
+  this.reveal( items );
+  // layout previous items
+  this.layoutItems( previousItems );
+};
+
+/**
+ * reveal a collection of items
+ * @param {Array of Outlayer.Items} items
+ */
+Outlayer.prototype.reveal = function( items ) {
+  var len = items && items.length;
+  if ( !len ) {
+    return;
+  }
+  for ( var i=0; i < len; i++ ) {
+    var item = items[i];
+    item.reveal();
+  }
+};
+
+/**
+ * hide a collection of items
+ * @param {Array of Outlayer.Items} items
+ */
+Outlayer.prototype.hide = function( items ) {
+  var len = items && items.length;
+  if ( !len ) {
+    return;
+  }
+  for ( var i=0; i < len; i++ ) {
+    var item = items[i];
+    item.hide();
+  }
+};
+
+/**
+ * get Outlayer.Item, given an Element
+ * @param {Element} elem
+ * @param {Function} callback
+ * @returns {Outlayer.Item} item
+ */
+Outlayer.prototype.getItem = function( elem ) {
+  // loop through items to get the one that matches
+  for ( var i=0, len = this.items.length; i < len; i++ ) {
+    var item = this.items[i];
+    if ( item.element === elem ) {
+      // return item
+      return item;
+    }
+  }
+};
+
+/**
+ * get collection of Outlayer.Items, given Elements
+ * @param {Array} elems
+ * @returns {Array} items - Outlayer.Items
+ */
+Outlayer.prototype.getItems = function( elems ) {
+  if ( !elems || !elems.length ) {
+    return;
+  }
+  var items = [];
+  for ( var i=0, len = elems.length; i < len; i++ ) {
+    var elem = elems[i];
+    var item = this.getItem( elem );
+    if ( item ) {
+      items.push( item );
+    }
+  }
+
+  return items;
+};
+
+/**
+ * remove element(s) from instance and DOM
+ * @param {Array or NodeList or Element} elems
+ */
+Outlayer.prototype.remove = function( elems ) {
+  elems = makeArray( elems );
+
+  var removeItems = this.getItems( elems );
+  // bail if no items to remove
+  if ( !removeItems || !removeItems.length ) {
+    return;
+  }
+
+  this._itemsOn( removeItems, 'remove', function() {
+    this.emitEvent( 'removeComplete', [ this, removeItems ] );
+  });
+
+  for ( var i=0, len = removeItems.length; i < len; i++ ) {
+    var item = removeItems[i];
+    item.remove();
+    // remove item from collection
+    removeFrom( item, this.items );
+  }
+};
+
+// ----- destroy ----- //
+
+// remove and disable Outlayer instance
+Outlayer.prototype.destroy = function() {
+  // clean up dynamic styles
+  var style = this.element.style;
+  style.height = '';
+  style.position = '';
+  style.width = '';
+  // destroy items
+  for ( var i=0, len = this.items.length; i < len; i++ ) {
+    var item = this.items[i];
+    item.destroy();
+  }
+
+  this.unbindResize();
+
+  var id = this.element.outlayerGUID;
+  delete instances[ id ]; // remove reference to instance by id
+  delete this.element.outlayerGUID;
+  // remove data for jQuery
+  if ( jQuery ) {
+    jQuery.removeData( this.element, this.constructor.namespace );
+  }
+
+};
+
+// -------------------------- data -------------------------- //
+
+/**
+ * get Outlayer instance from element
+ * @param {Element} elem
+ * @returns {Outlayer}
+ */
+Outlayer.data = function( elem ) {
+  var id = elem && elem.outlayerGUID;
+  return id && instances[ id ];
+};
+
+
+// -------------------------- create Outlayer class -------------------------- //
+
+/**
+ * create a layout class
+ * @param {String} namespace
+ */
+Outlayer.create = function( namespace, options ) {
+  // sub-class Outlayer
+  function Layout() {
+    Outlayer.apply( this, arguments );
+  }
+  // inherit Outlayer prototype, use Object.create if there
+  if ( Object.create ) {
+    Layout.prototype = Object.create( Outlayer.prototype );
+  } else {
+    extend( Layout.prototype, Outlayer.prototype );
+  }
+  // set contructor, used for namespace and Item
+  Layout.prototype.constructor = Layout;
+
+  Layout.defaults = extend( {}, Outlayer.defaults );
+  // apply new options
+  extend( Layout.defaults, options );
+  // keep prototype.settings for backwards compatibility (Packery v1.2.0)
+  Layout.prototype.settings = {};
+
+  Layout.namespace = namespace;
+
+  Layout.data = Outlayer.data;
+
+  // sub-class Item
+  Layout.Item = function LayoutItem() {
+    Item.apply( this, arguments );
+  };
+
+  Layout.Item.prototype = new Item();
+
+  // -------------------------- declarative -------------------------- //
+
+  /**
+   * allow user to initialize Outlayer via .js-namespace class
+   * options are parsed from data-namespace-option attribute
+   */
+  docReady( function() {
+    var dashedNamespace = toDashed( namespace );
+    var elems = document.querySelectorAll( '.js-' + dashedNamespace );
+    var dataAttr = 'data-' + dashedNamespace + '-options';
+
+    for ( var i=0, len = elems.length; i < len; i++ ) {
+      var elem = elems[i];
+      var attr = elem.getAttribute( dataAttr );
+      var options;
+      try {
+        options = attr && JSON.parse( attr );
+      } catch ( error ) {
+        // log error, do not initialize
+        if ( console ) {
+          console.error( 'Error parsing ' + dataAttr + ' on ' +
+            elem.nodeName.toLowerCase() + ( elem.id ? '#' + elem.id : '' ) + ': ' +
+            error );
+        }
+        continue;
+      }
+      // initialize
+      var instance = new Layout( elem, options );
+      // make available via $().data('layoutname')
+      if ( jQuery ) {
+        jQuery.data( elem, namespace, instance );
+      }
+    }
+  });
+
+  // -------------------------- jQuery bridge -------------------------- //
+
+  // make into jQuery plugin
+  if ( jQuery && jQuery.bridget ) {
+    jQuery.bridget( namespace, Layout );
+  }
+
+  return Layout;
+};
+
+// ----- fin ----- //
+
+// back in global
+Outlayer.Item = Item;
+
+return Outlayer;
+
+}
+
+// -------------------------- transport -------------------------- //
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'outlayer/outlayer',[
+      'eventie/eventie',
+      'doc-ready/doc-ready',
+      'eventEmitter/EventEmitter',
+      'get-size/get-size',
+      'matches-selector/matches-selector',
+      './item'
+    ],
+    outlayerDefinition );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = outlayerDefinition(
+    require('eventie'),
+    require('doc-ready'),
+    require('wolfy87-eventemitter'),
+    require('get-size'),
+    require('desandro-matches-selector'),
+    require('./item')
+  );
+} else {
+  // browser global
+  window.Outlayer = outlayerDefinition(
+    window.eventie,
+    window.docReady,
+    window.EventEmitter,
+    window.getSize,
+    window.matchesSelector,
+    window.Outlayer.Item
+  );
+}
+
+})( window );
+
+/**
+ * Isotope Item
+**/
+
+( function( window ) {
+
+
+
+// -------------------------- Item -------------------------- //
+
+function itemDefinition( Outlayer ) {
+
+// sub-class Outlayer Item
+function Item() {
+  Outlayer.Item.apply( this, arguments );
+}
+
+Item.prototype = new Outlayer.Item();
+
+Item.prototype._create = function() {
+  // assign id, used for original-order sorting
+  this.id = this.layout.itemGUID++;
+  Outlayer.Item.prototype._create.call( this );
+  this.sortData = {};
+};
+
+Item.prototype.updateSortData = function() {
+  if ( this.isIgnored ) {
+    return;
+  }
+  // default sorters
+  this.sortData.id = this.id;
+  // for backward compatibility
+  this.sortData['original-order'] = this.id;
+  this.sortData.random = Math.random();
+  // go thru getSortData obj and apply the sorters
+  var getSortData = this.layout.options.getSortData;
+  var sorters = this.layout._sorters;
+  for ( var key in getSortData ) {
+    var sorter = sorters[ key ];
+    this.sortData[ key ] = sorter( this.element, this );
+  }
+};
+
+var _destroy = Item.prototype.destroy;
+Item.prototype.destroy = function() {
+  // call super
+  _destroy.apply( this, arguments );
+  // reset display, #741
+  this.css({
+    display: ''
+  });
+};
+
+return Item;
+
+}
+
+// -------------------------- transport -------------------------- //
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'isotope/js/item',[
+      'outlayer/outlayer'
+    ],
+    itemDefinition );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = itemDefinition(
+    require('outlayer')
+  );
+} else {
+  // browser global
+  window.Isotope = window.Isotope || {};
+  window.Isotope.Item = itemDefinition(
+    window.Outlayer
+  );
+}
+
+})( window );
+
+( function( window ) {
+
+
+
+// --------------------------  -------------------------- //
+
+function layoutModeDefinition( getSize, Outlayer ) {
+
+  // layout mode class
+  function LayoutMode( isotope ) {
+    this.isotope = isotope;
+    // link properties
+    if ( isotope ) {
+      this.options = isotope.options[ this.namespace ];
+      this.element = isotope.element;
+      this.items = isotope.filteredItems;
+      this.size = isotope.size;
+    }
+  }
+
+  /**
+   * some methods should just defer to default Outlayer method
+   * and reference the Isotope instance as `this`
+  **/
+  ( function() {
+    var facadeMethods = [
+      '_resetLayout',
+      '_getItemLayoutPosition',
+      '_manageStamp',
+      '_getContainerSize',
+      '_getElementOffset',
+      'needsResizeLayout'
+    ];
+
+    for ( var i=0, len = facadeMethods.length; i < len; i++ ) {
+      var methodName = facadeMethods[i];
+      LayoutMode.prototype[ methodName ] = getOutlayerMethod( methodName );
+    }
+
+    function getOutlayerMethod( methodName ) {
+      return function() {
+        return Outlayer.prototype[ methodName ].apply( this.isotope, arguments );
+      };
+    }
+  })();
+
+  // -----  ----- //
+
+  // for horizontal layout modes, check vertical size
+  LayoutMode.prototype.needsVerticalResizeLayout = function() {
+    // don't trigger if size did not change
+    var size = getSize( this.isotope.element );
+    // check that this.size and size are there
+    // IE8 triggers resize on body size change, so they might not be
+    var hasSizes = this.isotope.size && size;
+    return hasSizes && size.innerHeight !== this.isotope.size.innerHeight;
+  };
+
+  // ----- measurements ----- //
+
+  LayoutMode.prototype._getMeasurement = function() {
+    this.isotope._getMeasurement.apply( this, arguments );
+  };
+
+  LayoutMode.prototype.getColumnWidth = function() {
+    this.getSegmentSize( 'column', 'Width' );
+  };
+
+  LayoutMode.prototype.getRowHeight = function() {
+    this.getSegmentSize( 'row', 'Height' );
+  };
+
+  /**
+   * get columnWidth or rowHeight
+   * segment: 'column' or 'row'
+   * size 'Width' or 'Height'
+  **/
+  LayoutMode.prototype.getSegmentSize = function( segment, size ) {
+    var segmentName = segment + size;
+    var outerSize = 'outer' + size;
+    // columnWidth / outerWidth // rowHeight / outerHeight
+    this._getMeasurement( segmentName, outerSize );
+    // got rowHeight or columnWidth, we can chill
+    if ( this[ segmentName ] ) {
+      return;
+    }
+    // fall back to item of first element
+    var firstItemSize = this.getFirstItemSize();
+    this[ segmentName ] = firstItemSize && firstItemSize[ outerSize ] ||
+      // or size of container
+      this.isotope.size[ 'inner' + size ];
+  };
+
+  LayoutMode.prototype.getFirstItemSize = function() {
+    var firstItem = this.isotope.filteredItems[0];
+    return firstItem && firstItem.element && getSize( firstItem.element );
+  };
+
+  // ----- methods that should reference isotope ----- //
+
+  LayoutMode.prototype.layout = function() {
+    this.isotope.layout.apply( this.isotope, arguments );
+  };
+
+  LayoutMode.prototype.getSize = function() {
+    this.isotope.getSize();
+    this.size = this.isotope.size;
+  };
+
+  // -------------------------- create -------------------------- //
+
+  LayoutMode.modes = {};
+
+  LayoutMode.create = function( namespace, options ) {
+
+    function Mode() {
+      LayoutMode.apply( this, arguments );
+    }
+
+    Mode.prototype = new LayoutMode();
+
+    // default options
+    if ( options ) {
+      Mode.options = options;
+    }
+
+    Mode.prototype.namespace = namespace;
+    // register in Isotope
+    LayoutMode.modes[ namespace ] = Mode;
+
+    return Mode;
+  };
+
+
+  return LayoutMode;
+
+}
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'isotope/js/layout-mode',[
+      'get-size/get-size',
+      'outlayer/outlayer'
+    ],
+    layoutModeDefinition );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = layoutModeDefinition(
+    require('get-size'),
+    require('outlayer')
+  );
+} else {
+  // browser global
+  window.Isotope = window.Isotope || {};
+  window.Isotope.LayoutMode = layoutModeDefinition(
+    window.getSize,
+    window.Outlayer
+  );
+}
+
+
+})( window );
+
+/*!
+ * Masonry v3.2.1
+ * Cascading grid layout library
+ * http://masonry.desandro.com
+ * MIT License
+ * by David DeSandro
+ */
+
+( function( window ) {
+
+
+
+// -------------------------- helpers -------------------------- //
+
+var indexOf = Array.prototype.indexOf ?
+  function( items, value ) {
+    return items.indexOf( value );
+  } :
+  function ( items, value ) {
+    for ( var i=0, len = items.length; i < len; i++ ) {
+      var item = items[i];
+      if ( item === value ) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+// -------------------------- masonryDefinition -------------------------- //
+
+// used for AMD definition and requires
+function masonryDefinition( Outlayer, getSize ) {
+  // create an Outlayer layout class
+  var Masonry = Outlayer.create('masonry');
+
+  Masonry.prototype._resetLayout = function() {
+    this.getSize();
+    this._getMeasurement( 'columnWidth', 'outerWidth' );
+    this._getMeasurement( 'gutter', 'outerWidth' );
+    this.measureColumns();
+
+    // reset column Y
+    var i = this.cols;
+    this.colYs = [];
+    while (i--) {
+      this.colYs.push( 0 );
+    }
+
+    this.maxY = 0;
+  };
+
+  Masonry.prototype.measureColumns = function() {
+    this.getContainerWidth();
+    // if columnWidth is 0, default to outerWidth of first item
+    if ( !this.columnWidth ) {
+      var firstItem = this.items[0];
+      var firstItemElem = firstItem && firstItem.element;
+      // columnWidth fall back to item of first element
+      this.columnWidth = firstItemElem && getSize( firstItemElem ).outerWidth ||
+        // if first elem has no width, default to size of container
+        this.containerWidth;
+    }
+
+    this.columnWidth += this.gutter;
+
+    this.cols = Math.floor( ( this.containerWidth + this.gutter ) / this.columnWidth );
+    this.cols = Math.max( this.cols, 1 );
+  };
+
+  Masonry.prototype.getContainerWidth = function() {
+    // container is parent if fit width
+    var container = this.options.isFitWidth ? this.element.parentNode : this.element;
+    // check that this.size and size are there
+    // IE8 triggers resize on body size change, so they might not be
+    var size = getSize( container );
+    this.containerWidth = size && size.innerWidth;
+  };
+
+  Masonry.prototype._getItemLayoutPosition = function( item ) {
+    item.getSize();
+    // how many columns does this brick span
+    var remainder = item.size.outerWidth % this.columnWidth;
+    var mathMethod = remainder && remainder < 1 ? 'round' : 'ceil';
+    // round if off by 1 pixel, otherwise use ceil
+    var colSpan = Math[ mathMethod ]( item.size.outerWidth / this.columnWidth );
+    colSpan = Math.min( colSpan, this.cols );
+
+    var colGroup = this._getColGroup( colSpan );
+    // get the minimum Y value from the columns
+    var minimumY = Math.min.apply( Math, colGroup );
+    var shortColIndex = indexOf( colGroup, minimumY );
+
+    // position the brick
+    var position = {
+      x: this.columnWidth * shortColIndex,
+      y: minimumY
+    };
+
+    // apply setHeight to necessary columns
+    var setHeight = minimumY + item.size.outerHeight;
+    var setSpan = this.cols + 1 - colGroup.length;
+    for ( var i = 0; i < setSpan; i++ ) {
+      this.colYs[ shortColIndex + i ] = setHeight;
+    }
+
+    return position;
+  };
+
+  /**
+   * @param {Number} colSpan - number of columns the element spans
+   * @returns {Array} colGroup
+   */
+  Masonry.prototype._getColGroup = function( colSpan ) {
+    if ( colSpan < 2 ) {
+      // if brick spans only one column, use all the column Ys
+      return this.colYs;
+    }
+
+    var colGroup = [];
+    // how many different places could this brick fit horizontally
+    var groupCount = this.cols + 1 - colSpan;
+    // for each group potential horizontal position
+    for ( var i = 0; i < groupCount; i++ ) {
+      // make an array of colY values for that one group
+      var groupColYs = this.colYs.slice( i, i + colSpan );
+      // and get the max value of the array
+      colGroup[i] = Math.max.apply( Math, groupColYs );
+    }
+    return colGroup;
+  };
+
+  Masonry.prototype._manageStamp = function( stamp ) {
+    var stampSize = getSize( stamp );
+    var offset = this._getElementOffset( stamp );
+    // get the columns that this stamp affects
+    var firstX = this.options.isOriginLeft ? offset.left : offset.right;
+    var lastX = firstX + stampSize.outerWidth;
+    var firstCol = Math.floor( firstX / this.columnWidth );
+    firstCol = Math.max( 0, firstCol );
+    var lastCol = Math.floor( lastX / this.columnWidth );
+    // lastCol should not go over if multiple of columnWidth #425
+    lastCol -= lastX % this.columnWidth ? 0 : 1;
+    lastCol = Math.min( this.cols - 1, lastCol );
+    // set colYs to bottom of the stamp
+    var stampMaxY = ( this.options.isOriginTop ? offset.top : offset.bottom ) +
+      stampSize.outerHeight;
+    for ( var i = firstCol; i <= lastCol; i++ ) {
+      this.colYs[i] = Math.max( stampMaxY, this.colYs[i] );
+    }
+  };
+
+  Masonry.prototype._getContainerSize = function() {
+    this.maxY = Math.max.apply( Math, this.colYs );
+    var size = {
+      height: this.maxY
+    };
+
+    if ( this.options.isFitWidth ) {
+      size.width = this._getContainerFitWidth();
+    }
+
+    return size;
+  };
+
+  Masonry.prototype._getContainerFitWidth = function() {
+    var unusedCols = 0;
+    // count unused columns
+    var i = this.cols;
+    while ( --i ) {
+      if ( this.colYs[i] !== 0 ) {
+        break;
+      }
+      unusedCols++;
+    }
+    // fit container to columns that have been used
+    return ( this.cols - unusedCols ) * this.columnWidth - this.gutter;
+  };
+
+  Masonry.prototype.needsResizeLayout = function() {
+    var previousWidth = this.containerWidth;
+    this.getContainerWidth();
+    return previousWidth !== this.containerWidth;
+  };
+
+  return Masonry;
+}
+
+// -------------------------- transport -------------------------- //
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'masonry/masonry',[
+      'outlayer/outlayer',
+      'get-size/get-size'
+    ],
+    masonryDefinition );
+} else if (typeof exports === 'object') {
+  module.exports = masonryDefinition(
+    require('outlayer'),
+    require('get-size')
+  );
+} else {
+  // browser global
+  window.Masonry = masonryDefinition(
+    window.Outlayer,
+    window.getSize
+  );
+}
+
+})( window );
+
+/*!
+ * Masonry layout mode
+ * sub-classes Masonry
+ * http://masonry.desandro.com
+ */
+
+( function( window ) {
+
+
+
+// -------------------------- helpers -------------------------- //
+
+// extend objects
+function extend( a, b ) {
+  for ( var prop in b ) {
+    a[ prop ] = b[ prop ];
+  }
+  return a;
+}
+
+// -------------------------- masonryDefinition -------------------------- //
+
+// used for AMD definition and requires
+function masonryDefinition( LayoutMode, Masonry ) {
+  // create an Outlayer layout class
+  var MasonryMode = LayoutMode.create('masonry');
+
+  // save on to these methods
+  var _getElementOffset = MasonryMode.prototype._getElementOffset;
+  var layout = MasonryMode.prototype.layout;
+  var _getMeasurement = MasonryMode.prototype._getMeasurement;
+
+  // sub-class Masonry
+  extend( MasonryMode.prototype, Masonry.prototype );
+
+  // set back, as it was overwritten by Masonry
+  MasonryMode.prototype._getElementOffset = _getElementOffset;
+  MasonryMode.prototype.layout = layout;
+  MasonryMode.prototype._getMeasurement = _getMeasurement;
+
+  var measureColumns = MasonryMode.prototype.measureColumns;
+  MasonryMode.prototype.measureColumns = function() {
+    // set items, used if measuring first item
+    this.items = this.isotope.filteredItems;
+    measureColumns.call( this );
+  };
+
+  // HACK copy over isOriginLeft/Top options
+  var _manageStamp = MasonryMode.prototype._manageStamp;
+  MasonryMode.prototype._manageStamp = function() {
+    this.options.isOriginLeft = this.isotope.options.isOriginLeft;
+    this.options.isOriginTop = this.isotope.options.isOriginTop;
+    _manageStamp.apply( this, arguments );
+  };
+
+  return MasonryMode;
+}
+
+// -------------------------- transport -------------------------- //
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'isotope/js/layout-modes/masonry',[
+      '../layout-mode',
+      'masonry/masonry'
+    ],
+    masonryDefinition );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = masonryDefinition(
+    require('../layout-mode'),
+    require('masonry-layout')
+  );
+} else {
+  // browser global
+  masonryDefinition(
+    window.Isotope.LayoutMode,
+    window.Masonry
+  );
+}
+
+})( window );
+
+( function( window ) {
+
+
+
+function fitRowsDefinition( LayoutMode ) {
+
+var FitRows = LayoutMode.create('fitRows');
+
+FitRows.prototype._resetLayout = function() {
+  this.x = 0;
+  this.y = 0;
+  this.maxY = 0;
+  this._getMeasurement( 'gutter', 'outerWidth' );
+};
+
+FitRows.prototype._getItemLayoutPosition = function( item ) {
+  item.getSize();
+
+  var itemWidth = item.size.outerWidth + this.gutter;
+  // if this element cannot fit in the current row
+  var containerWidth = this.isotope.size.innerWidth + this.gutter;
+  if ( this.x !== 0 && itemWidth + this.x > containerWidth ) {
+    this.x = 0;
+    this.y = this.maxY;
+  }
+
+  var position = {
+    x: this.x,
+    y: this.y
+  };
+
+  this.maxY = Math.max( this.maxY, this.y + item.size.outerHeight );
+  this.x += itemWidth;
+
+  return position;
+};
+
+FitRows.prototype._getContainerSize = function() {
+  return { height: this.maxY };
+};
+
+return FitRows;
+
+}
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'isotope/js/layout-modes/fit-rows',[
+      '../layout-mode'
+    ],
+    fitRowsDefinition );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = fitRowsDefinition(
+    require('../layout-mode')
+  );
+} else {
+  // browser global
+  fitRowsDefinition(
+    window.Isotope.LayoutMode
+  );
+}
+
+})( window );
+
+( function( window ) {
+
+
+
+function verticalDefinition( LayoutMode ) {
+
+var Vertical = LayoutMode.create( 'vertical', {
+  horizontalAlignment: 0
+});
+
+Vertical.prototype._resetLayout = function() {
+  this.y = 0;
+};
+
+Vertical.prototype._getItemLayoutPosition = function( item ) {
+  item.getSize();
+  var x = ( this.isotope.size.innerWidth - item.size.outerWidth ) *
+    this.options.horizontalAlignment;
+  var y = this.y;
+  this.y += item.size.outerHeight;
+  return { x: x, y: y };
+};
+
+Vertical.prototype._getContainerSize = function() {
+  return { height: this.y };
+};
+
+return Vertical;
+
+}
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( 'isotope/js/layout-modes/vertical',[
+      '../layout-mode'
+    ],
+    verticalDefinition );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = verticalDefinition(
+    require('../layout-mode')
+  );
+} else {
+  // browser global
+  verticalDefinition(
+    window.Isotope.LayoutMode
+  );
+}
+
+})( window );
+
+/*!
+ * Isotope v2.1.0
+ * Filter & sort magical layouts
+ * http://isotope.metafizzy.co
+ */
+
+( function( window ) {
+
+
+
+// -------------------------- vars -------------------------- //
+
+var jQuery = window.jQuery;
+
+// -------------------------- helpers -------------------------- //
+
+// extend objects
+function extend( a, b ) {
+  for ( var prop in b ) {
+    a[ prop ] = b[ prop ];
+  }
+  return a;
+}
+
+var trim = String.prototype.trim ?
+  function( str ) {
+    return str.trim();
+  } :
+  function( str ) {
+    return str.replace( /^\s+|\s+$/g, '' );
+  };
+
+var docElem = document.documentElement;
+
+var getText = docElem.textContent ?
+  function( elem ) {
+    return elem.textContent;
+  } :
+  function( elem ) {
+    return elem.innerText;
+  };
+
+var objToString = Object.prototype.toString;
+function isArray( obj ) {
+  return objToString.call( obj ) === '[object Array]';
+}
+
+// index of helper cause IE8
+var indexOf = Array.prototype.indexOf ? function( ary, obj ) {
+    return ary.indexOf( obj );
+  } : function( ary, obj ) {
+    for ( var i=0, len = ary.length; i < len; i++ ) {
+      if ( ary[i] === obj ) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+// turn element or nodeList into an array
+function makeArray( obj ) {
+  var ary = [];
+  if ( isArray( obj ) ) {
+    // use object if already an array
+    ary = obj;
+  } else if ( obj && typeof obj.length === 'number' ) {
+    // convert nodeList to array
+    for ( var i=0, len = obj.length; i < len; i++ ) {
+      ary.push( obj[i] );
+    }
+  } else {
+    // array of single index
+    ary.push( obj );
+  }
+  return ary;
+}
+
+function removeFrom( obj, ary ) {
+  var index = indexOf( ary, obj );
+  if ( index !== -1 ) {
+    ary.splice( index, 1 );
+  }
+}
+
+// -------------------------- isotopeDefinition -------------------------- //
+
+// used for AMD definition and requires
+function isotopeDefinition( Outlayer, getSize, matchesSelector, Item, LayoutMode ) {
+  // create an Outlayer layout class
+  var Isotope = Outlayer.create( 'isotope', {
+    layoutMode: "masonry",
+    isJQueryFiltering: true,
+    sortAscending: true
+  });
+
+  Isotope.Item = Item;
+  Isotope.LayoutMode = LayoutMode;
+
+  Isotope.prototype._create = function() {
+    this.itemGUID = 0;
+    // functions that sort items
+    this._sorters = {};
+    this._getSorters();
+    // call super
+    Outlayer.prototype._create.call( this );
+
+    // create layout modes
+    this.modes = {};
+    // start filteredItems with all items
+    this.filteredItems = this.items;
+    // keep of track of sortBys
+    this.sortHistory = [ 'original-order' ];
+    // create from registered layout modes
+    for ( var name in LayoutMode.modes ) {
+      this._initLayoutMode( name );
+    }
+  };
+
+  Isotope.prototype.reloadItems = function() {
+    // reset item ID counter
+    this.itemGUID = 0;
+    // call super
+    Outlayer.prototype.reloadItems.call( this );
+  };
+
+  Isotope.prototype._itemize = function() {
+    var items = Outlayer.prototype._itemize.apply( this, arguments );
+    // assign ID for original-order
+    for ( var i=0, len = items.length; i < len; i++ ) {
+      var item = items[i];
+      item.id = this.itemGUID++;
+    }
+    this._updateItemsSortData( items );
+    return items;
+  };
+
+
+  // -------------------------- layout -------------------------- //
+
+  Isotope.prototype._initLayoutMode = function( name ) {
+    var Mode = LayoutMode.modes[ name ];
+    // set mode options
+    // HACK extend initial options, back-fill in default options
+    var initialOpts = this.options[ name ] || {};
+    this.options[ name ] = Mode.options ?
+      extend( Mode.options, initialOpts ) : initialOpts;
+    // init layout mode instance
+    this.modes[ name ] = new Mode( this );
+  };
+
+
+  Isotope.prototype.layout = function() {
+    // if first time doing layout, do all magic
+    if ( !this._isLayoutInited && this.options.isInitLayout ) {
+      this.arrange();
+      return;
+    }
+    this._layout();
+  };
+
+  // private method to be used in layout() & magic()
+  Isotope.prototype._layout = function() {
+    // don't animate first layout
+    var isInstant = this._getIsInstant();
+    // layout flow
+    this._resetLayout();
+    this._manageStamps();
+    this.layoutItems( this.filteredItems, isInstant );
+
+    // flag for initalized
+    this._isLayoutInited = true;
+  };
+
+  // filter + sort + layout
+  Isotope.prototype.arrange = function( opts ) {
+    // set any options pass
+    this.option( opts );
+    this._getIsInstant();
+    // filter, sort, and layout
+    this.filteredItems = this._filter( this.items );
+    this._sort();
+    this._layout();
+  };
+  // alias to _init for main plugin method
+  Isotope.prototype._init = Isotope.prototype.arrange;
+
+  // HACK
+  // Don't animate/transition first layout
+  // Or don't animate/transition other layouts
+  Isotope.prototype._getIsInstant = function() {
+    var isInstant = this.options.isLayoutInstant !== undefined ?
+      this.options.isLayoutInstant : !this._isLayoutInited;
+    this._isInstant = isInstant;
+    return isInstant;
+  };
+
+  // -------------------------- filter -------------------------- //
+
+  Isotope.prototype._filter = function( items ) {
+    var filter = this.options.filter;
+    filter = filter || '*';
+    var matches = [];
+    var hiddenMatched = [];
+    var visibleUnmatched = [];
+
+    var test = this._getFilterTest( filter );
+
+    // test each item
+    for ( var i=0, len = items.length; i < len; i++ ) {
+      var item = items[i];
+      if ( item.isIgnored ) {
+        continue;
+      }
+      // add item to either matched or unmatched group
+      var isMatched = test( item );
+      // item.isFilterMatched = isMatched;
+      // add to matches if its a match
+      if ( isMatched ) {
+        matches.push( item );
+      }
+      // add to additional group if item needs to be hidden or revealed
+      if ( isMatched && item.isHidden ) {
+        hiddenMatched.push( item );
+      } else if ( !isMatched && !item.isHidden ) {
+        visibleUnmatched.push( item );
+      }
+    }
+
+    var _this = this;
+    function hideReveal() {
+      _this.reveal( hiddenMatched );
+      _this.hide( visibleUnmatched );
+    }
+
+    if ( this._isInstant ) {
+      this._noTransition( hideReveal );
+    } else {
+      hideReveal();
+    }
+
+    return matches;
+  };
+
+  // get a jQuery, function, or a matchesSelector test given the filter
+  Isotope.prototype._getFilterTest = function( filter ) {
+    if ( jQuery && this.options.isJQueryFiltering ) {
+      // use jQuery
+      return function( item ) {
+        return jQuery( item.element ).is( filter );
+      };
+    }
+    if ( typeof filter === 'function' ) {
+      // use filter as function
+      return function( item ) {
+        return filter( item.element );
+      };
+    }
+    // default, use filter as selector string
+    return function( item ) {
+      return matchesSelector( item.element, filter );
+    };
+  };
+
+  // -------------------------- sorting -------------------------- //
+
+  /**
+   * @params {Array} elems
+   * @public
+   */
+  Isotope.prototype.updateSortData = function( elems ) {
+    // get items
+    var items;
+    if ( elems ) {
+      elems = makeArray( elems );
+      items = this.getItems( elems );
+    } else {
+      // update all items if no elems provided
+      items = this.items;
+    }
+
+    this._getSorters();
+    this._updateItemsSortData( items );
+  };
+
+  Isotope.prototype._getSorters = function() {
+    var getSortData = this.options.getSortData;
+    for ( var key in getSortData ) {
+      var sorter = getSortData[ key ];
+      this._sorters[ key ] = mungeSorter( sorter );
+    }
+  };
+
+  /**
+   * @params {Array} items - of Isotope.Items
+   * @private
+   */
+  Isotope.prototype._updateItemsSortData = function( items ) {
+    // do not update if no items
+    var len = items && items.length;
+
+    for ( var i=0; len && i < len; i++ ) {
+      var item = items[i];
+      item.updateSortData();
+    }
+  };
+
+  // ----- munge sorter ----- //
+
+  // encapsulate this, as we just need mungeSorter
+  // other functions in here are just for munging
+  var mungeSorter = ( function() {
+    // add a magic layer to sorters for convienent shorthands
+    // `.foo-bar` will use the text of .foo-bar querySelector
+    // `[foo-bar]` will use attribute
+    // you can also add parser
+    // `.foo-bar parseInt` will parse that as a number
+    function mungeSorter( sorter ) {
+      // if not a string, return function or whatever it is
+      if ( typeof sorter !== 'string' ) {
+        return sorter;
+      }
+      // parse the sorter string
+      var args = trim( sorter ).split(' ');
+      var query = args[0];
+      // check if query looks like [an-attribute]
+      var attrMatch = query.match( /^\[(.+)\]$/ );
+      var attr = attrMatch && attrMatch[1];
+      var getValue = getValueGetter( attr, query );
+      // use second argument as a parser
+      var parser = Isotope.sortDataParsers[ args[1] ];
+      // parse the value, if there was a parser
+      sorter = parser ? function( elem ) {
+        return elem && parser( getValue( elem ) );
+      } :
+      // otherwise just return value
+      function( elem ) {
+        return elem && getValue( elem );
+      };
+
+      return sorter;
+    }
+
+    // get an attribute getter, or get text of the querySelector
+    function getValueGetter( attr, query ) {
+      var getValue;
+      // if query looks like [foo-bar], get attribute
+      if ( attr ) {
+        getValue = function( elem ) {
+          return elem.getAttribute( attr );
+        };
+      } else {
+        // otherwise, assume its a querySelector, and get its text
+        getValue = function( elem ) {
+          var child = elem.querySelector( query );
+          return child && getText( child );
+        };
+      }
+      return getValue;
+    }
+
+    return mungeSorter;
+  })();
+
+  // parsers used in getSortData shortcut strings
+  Isotope.sortDataParsers = {
+    'parseInt': function( val ) {
+      return parseInt( val, 10 );
+    },
+    'parseFloat': function( val ) {
+      return parseFloat( val );
+    }
+  };
+
+  // ----- sort method ----- //
+
+  // sort filteredItem order
+  Isotope.prototype._sort = function() {
+    var sortByOpt = this.options.sortBy;
+    if ( !sortByOpt ) {
+      return;
+    }
+    // concat all sortBy and sortHistory
+    var sortBys = [].concat.apply( sortByOpt, this.sortHistory );
+    // sort magic
+    var itemSorter = getItemSorter( sortBys, this.options.sortAscending );
+    this.filteredItems.sort( itemSorter );
+    // keep track of sortBy History
+    if ( sortByOpt !== this.sortHistory[0] ) {
+      // add to front, oldest goes in last
+      this.sortHistory.unshift( sortByOpt );
+    }
+  };
+
+  // returns a function used for sorting
+  function getItemSorter( sortBys, sortAsc ) {
+    return function sorter( itemA, itemB ) {
+      // cycle through all sortKeys
+      for ( var i = 0, len = sortBys.length; i < len; i++ ) {
+        var sortBy = sortBys[i];
+        var a = itemA.sortData[ sortBy ];
+        var b = itemB.sortData[ sortBy ];
+        if ( a > b || a < b ) {
+          // if sortAsc is an object, use the value given the sortBy key
+          var isAscending = sortAsc[ sortBy ] !== undefined ? sortAsc[ sortBy ] : sortAsc;
+          var direction = isAscending ? 1 : -1;
+          return ( a > b ? 1 : -1 ) * direction;
+        }
+      }
+      return 0;
+    };
+  }
+
+  // -------------------------- methods -------------------------- //
+
+  // get layout mode
+  Isotope.prototype._mode = function() {
+    var layoutMode = this.options.layoutMode;
+    var mode = this.modes[ layoutMode ];
+    if ( !mode ) {
+      // TODO console.error
+      throw new Error( 'No layout mode: ' + layoutMode );
+    }
+    // HACK sync mode's options
+    // any options set after init for layout mode need to be synced
+    mode.options = this.options[ layoutMode ];
+    return mode;
+  };
+
+  Isotope.prototype._resetLayout = function() {
+    // trigger original reset layout
+    Outlayer.prototype._resetLayout.call( this );
+    this._mode()._resetLayout();
+  };
+
+  Isotope.prototype._getItemLayoutPosition = function( item  ) {
+    return this._mode()._getItemLayoutPosition( item );
+  };
+
+  Isotope.prototype._manageStamp = function( stamp ) {
+    this._mode()._manageStamp( stamp );
+  };
+
+  Isotope.prototype._getContainerSize = function() {
+    return this._mode()._getContainerSize();
+  };
+
+  Isotope.prototype.needsResizeLayout = function() {
+    return this._mode().needsResizeLayout();
+  };
+
+  // -------------------------- adding & removing -------------------------- //
+
+  // HEADS UP overwrites default Outlayer appended
+  Isotope.prototype.appended = function( elems ) {
+    var items = this.addItems( elems );
+    if ( !items.length ) {
+      return;
+    }
+    var filteredItems = this._filterRevealAdded( items );
+    // add to filteredItems
+    this.filteredItems = this.filteredItems.concat( filteredItems );
+  };
+
+  // HEADS UP overwrites default Outlayer prepended
+  Isotope.prototype.prepended = function( elems ) {
+    var items = this._itemize( elems );
+    if ( !items.length ) {
+      return;
+    }
+    // add items to beginning of collection
+    var previousItems = this.items.slice(0);
+    this.items = items.concat( previousItems );
+    // start new layout
+    this._resetLayout();
+    this._manageStamps();
+    // layout new stuff without transition
+    var filteredItems = this._filterRevealAdded( items );
+    // layout previous items
+    this.layoutItems( previousItems );
+    // add to filteredItems
+    this.filteredItems = filteredItems.concat( this.filteredItems );
+  };
+
+  Isotope.prototype._filterRevealAdded = function( items ) {
+    var filteredItems = this._noTransition( function() {
+      return this._filter( items );
+    });
+    // layout and reveal just the new items
+    this.layoutItems( filteredItems, true );
+    this.reveal( filteredItems );
+    return items;
+  };
+
+  /**
+   * Filter, sort, and layout newly-appended item elements
+   * @param {Array or NodeList or Element} elems
+   */
+  Isotope.prototype.insert = function( elems ) {
+    var items = this.addItems( elems );
+    if ( !items.length ) {
+      return;
+    }
+    // append item elements
+    var i, item;
+    var len = items.length;
+    for ( i=0; i < len; i++ ) {
+      item = items[i];
+      this.element.appendChild( item.element );
+    }
+    // filter new stuff
+    /*
+    // this way adds hides new filtered items with NO transition
+    // so user can't see if new hidden items have been inserted
+    var filteredInsertItems;
+    this._noTransition( function() {
+      filteredInsertItems = this._filter( items );
+      // hide all new items
+      this.hide( filteredInsertItems );
+    });
+    // */
+    // this way hides new filtered items with transition
+    // so user at least sees that something has been added
+    var filteredInsertItems = this._filter( items );
+    // hide all newitems
+    this._noTransition( function() {
+      this.hide( filteredInsertItems );
+    });
+    // */
+    // set flag
+    for ( i=0; i < len; i++ ) {
+      items[i].isLayoutInstant = true;
+    }
+    this.arrange();
+    // reset flag
+    for ( i=0; i < len; i++ ) {
+      delete items[i].isLayoutInstant;
+    }
+    this.reveal( filteredInsertItems );
+  };
+
+  var _remove = Isotope.prototype.remove;
+  Isotope.prototype.remove = function( elems ) {
+    elems = makeArray( elems );
+    var removeItems = this.getItems( elems );
+    // do regular thing
+    _remove.call( this, elems );
+    // bail if no items to remove
+    if ( !removeItems || !removeItems.length ) {
+      return;
+    }
+    // remove elems from filteredItems
+    for ( var i=0, len = removeItems.length; i < len; i++ ) {
+      var item = removeItems[i];
+      // remove item from collection
+      removeFrom( item, this.filteredItems );
+    }
+  };
+
+  Isotope.prototype.shuffle = function() {
+    // update random sortData
+    for ( var i=0, len = this.items.length; i < len; i++ ) {
+      var item = this.items[i];
+      item.sortData.random = Math.random();
+    }
+    this.options.sortBy = 'random';
+    this._sort();
+    this._layout();
+  };
+
+  /**
+   * trigger fn without transition
+   * kind of hacky to have this in the first place
+   * @param {Function} fn
+   * @returns ret
+   * @private
+   */
+  Isotope.prototype._noTransition = function( fn ) {
+    // save transitionDuration before disabling
+    var transitionDuration = this.options.transitionDuration;
+    // disable transition
+    this.options.transitionDuration = 0;
+    // do it
+    var returnValue = fn.call( this );
+    // re-enable transition for reveal
+    this.options.transitionDuration = transitionDuration;
+    return returnValue;
+  };
+
+  // ----- helper methods ----- //
+
+  /**
+   * getter method for getting filtered item elements
+   * @returns {Array} elems - collection of item elements
+   */
+  Isotope.prototype.getFilteredItemElements = function() {
+    var elems = [];
+    for ( var i=0, len = this.filteredItems.length; i < len; i++ ) {
+      elems.push( this.filteredItems[i].element );
+    }
+    return elems;
+  };
+
+  // -----  ----- //
+
+  return Isotope;
+}
+
+// -------------------------- transport -------------------------- //
+
+if ( typeof define === 'function' && define.amd ) {
+  // AMD
+  define( [
+      'outlayer/outlayer',
+      'get-size/get-size',
+      'matches-selector/matches-selector',
+      'isotope/js/item',
+      'isotope/js/layout-mode',
+      // include default layout modes
+      'isotope/js/layout-modes/masonry',
+      'isotope/js/layout-modes/fit-rows',
+      'isotope/js/layout-modes/vertical'
+    ],
+    isotopeDefinition );
+} else if ( typeof exports === 'object' ) {
+  // CommonJS
+  module.exports = isotopeDefinition(
+    require('outlayer'),
+    require('get-size'),
+    require('desandro-matches-selector'),
+    require('./item'),
+    require('./layout-mode'),
+    // include default layout modes
+    require('./layout-modes/masonry'),
+    require('./layout-modes/fit-rows'),
+    require('./layout-modes/vertical')
+  );
+} else {
+  // browser global
+  window.Isotope = isotopeDefinition(
+    window.Outlayer,
+    window.getSize,
+    window.matchesSelector,
+    window.Isotope.Item,
+    window.Isotope.LayoutMode
+  );
+}
+
+})( window );
+
+
+// This is the annotated source code for
+// [VisualSearch.js](http://documentcloud.github.com/visualsearch/),
+// a rich search box for real data.
+// 
+// The annotated source HTML is generated by
+// [Docco](http://jashkenas.github.com/docco/).
+
+/** @license VisualSearch.js 0.4.0
+ *  (c) 2011 Samuel Clay, @samuelclay, DocumentCloud Inc.
+ *  VisualSearch.js may be freely distributed under the MIT license.
+ *  For all details and documentation:
+ *  http://documentcloud.github.com/visualsearch
+ */
+
+(function() {
+
+  var $ = jQuery; // Handle namespaced jQuery
+
+  // Setting up VisualSearch globals. These will eventually be made instance-based.
+  if (!window.VS) window.VS = {};
+  if (!VS.app)    VS.app    = {};
+  if (!VS.ui)     VS.ui     = {};
+  if (!VS.model)  VS.model  = {};
+  if (!VS.utils)  VS.utils  = {};
+
+  // Sets the version for VisualSearch to be used programatically elsewhere.
+  VS.VERSION = '0.4.0';
+
+  VS.VisualSearch = function(options) {
+    var defaults = {
+      container   : '',
+      query       : '',
+      autosearch  : true,
+      unquotable  : [],
+      remainder   : 'text',
+      showFacets  : true,
+      callbacks   : {
+        search          : $.noop,
+        focus           : $.noop,
+        blur            : $.noop,
+        facetMatches    : $.noop,
+        valueMatches    : $.noop
+      }
+    };
+    this.options           = _.extend({}, defaults, options);
+    this.options.callbacks = _.extend({}, defaults.callbacks, options.callbacks);
+    
+    VS.app.hotkeys.initialize();
+    this.searchQuery   = new VS.model.SearchQuery();
+    this.searchBox     = new VS.ui.SearchBox({
+        app: this, 
+        showFacets: this.options.showFacets
+    });
+
+    if (options.container) {
+      var searchBox = this.searchBox.render().el;
+      $(this.options.container).html(searchBox);
+    }
+    this.searchBox.value(this.options.query || '');
+
+    // Disable page caching for browsers that incorrectly cache the visual search inputs.
+    // This is forced the browser to re-render the page when it is retrieved in its history.
+    $(window).bind('unload', function(e) {});
+
+    // Gives the user back a reference to the `searchBox` so they
+    // can use public methods.
+    return this;
+  };
+
+  // Entry-point used to tie all parts of VisualSearch together. It will either attach
+  // itself to `options.container`, or pass back the `searchBox` so it can be rendered
+  // at will.
+  VS.init = function(options) {
+    return new VS.VisualSearch(options);
+  };
+
+})();
+
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// The search box is responsible for managing the many facet views and input views.
+VS.ui.SearchBox = Backbone.View.extend({
+
+  id  : 'search',
+
+  events : {
+    'click .VS-cancel-search-box' : 'clearSearch',
+    'mousedown .VS-search-box'    : 'maybeFocusSearch',
+    'dblclick .VS-search-box'     : 'highlightSearch',
+    'click .VS-search-box'        : 'maybeTripleClick'
+  },
+
+  // Creating a new SearchBox registers handlers for re-rendering facets when necessary,
+  // as well as handling typing when a facet is selected.
+  initialize : function() {
+    this.app = this.options.app;
+    this.flags = {
+      allSelected : false
+    };
+    this.facetViews = [];
+    this.inputViews = [];
+    _.bindAll(this, 'renderFacets', '_maybeDisableFacets', 'disableFacets',
+              'deselectAllFacets', 'addedFacet', 'removedFacet', 'changedFacet');
+    this.app.searchQuery
+            .bind('reset', this.renderFacets)
+            .bind('add', this.addedFacet)
+            .bind('remove', this.removedFacet)
+            .bind('change', this.changedFacet);
+    $(document).bind('keydown', this._maybeDisableFacets);
+  },
+
+  // Renders the search box, but requires placement on the page through `this.el`.
+  render : function() {
+    $(this.el).append(JST['search_box']({}));
+    $(document.body).setMode('no', 'search');
+
+    return this;
+  },
+
+  // # Querying Facets #
+
+  // Either gets a serialized query string or sets the faceted query from a query string.
+  value : function(query) {
+    if (query == null) return this.serialize();
+    return this.setQuery(query);
+  },
+
+  // Uses the VS.app.searchQuery collection to serialize the current query from the various
+  // facets that are in the search box.
+  serialize : function() {
+    var query           = [];
+    var inputViewsCount = this.inputViews.length;
+
+    this.app.searchQuery.each(_.bind(function(facet, i) {
+      query.push(this.inputViews[i].value());
+      query.push(facet.serialize());
+    }, this));
+
+    if (inputViewsCount) {
+      query.push(this.inputViews[inputViewsCount-1].value());
+    }
+
+    return _.compact(query).join(' ');
+  },
+  
+  // Returns any facet views that are currently selected. Useful for changing the value
+  // callbacks based on what else is in the search box and which facet is being edited.
+  selected: function() {
+    return _.select(this.facetViews, function(view) { 
+      return view.modes.editing == 'is' || view.modes.selected == 'is';
+    });
+  },
+  
+  // Similar to `this.selected`, returns any facet models that are currently selected.
+  selectedModels: function() {
+    return _.pluck(this.selected(), 'model');
+  },
+
+  // Takes a query string and uses the SearchParser to parse and render it. Note that
+  // `VS.app.SearchParser` refreshes the `VS.app.searchQuery` collection, which is bound
+  // here to call `this.renderFacets`.
+  setQuery : function(query) {
+    this.currentQuery = query;
+    VS.app.SearchParser.parse(this.app, query);
+  },
+
+  // Returns the position of a facet/input view. Useful when moving between facets.
+  viewPosition : function(view) {
+    var views    = view.type == 'facet' ? this.facetViews : this.inputViews;
+    var position = _.indexOf(views, view);
+    if (position == -1) position = 0;
+    return position;
+  },
+
+  // Used to launch a search. Hitting enter or clicking the search button.
+  searchEvent : function(e) {
+    var query = this.value();
+    this.focusSearch(e);
+    this.value(query);
+    this.app.options.callbacks.search(query, this.app.searchQuery);
+  },
+
+  // # Rendering Facets #
+
+  // Add a new facet. Facet will be focused and ready to accept a value. Can also
+  // specify position, in the case of adding facets from an inbetween input.
+  addFacet : function(category, initialQuery, position) {
+    category     = VS.utils.inflector.trim(category);
+    initialQuery = VS.utils.inflector.trim(initialQuery || '');
+    if (!category) return;
+    
+    var model = new VS.model.SearchFacet({
+      category : category,
+      value    : initialQuery || '',
+      app      : this.app
+    });
+    this.app.searchQuery.add(model, {at: position});
+  },
+
+  // Renders a newly added facet, and selects it.
+  addedFacet : function (model) {
+    this.renderFacets();
+    var facetView = _.detect(this.facetViews, function(view) {
+      if (view.model == model) return true;
+    });
+
+    _.defer(function() {
+      facetView.enableEdit();
+    });
+  },
+
+  // Changing a facet programmatically re-renders it.
+  changedFacet: function () {
+    this.renderFacets();
+  },
+
+  // When removing a facet, potentially do something. For now, the adjacent
+  // remaining facet is selected, but this is handled by the facet's view,
+  // since its position is unknown by the time the collection triggers this
+  // remove callback.
+  removedFacet : function (facet, query, options) {},
+
+  // Renders each facet as a searchFacet view.
+  renderFacets : function() {
+    this.facetViews = [];
+    this.inputViews = [];
+
+    this.$('.VS-search-inner').empty();
+
+    this.app.searchQuery.each(_.bind(this.renderFacet, this));
+
+    // Add on an n+1 empty search input on the very end.
+    this.renderSearchInput();
+    this.renderPlaceholder();
+  },
+
+  // Render a single facet, using its category and query value.
+  renderFacet : function(facet, position) {
+    var view = new VS.ui.SearchFacet({
+      app   : this.app,
+      model : facet,
+      order : position
+    });
+
+    // Input first, facet second.
+    this.renderSearchInput();
+    this.facetViews.push(view);
+    this.$('.VS-search-inner').children().eq(position*2).after(view.render().el);
+
+    view.calculateSize();
+    _.defer(_.bind(view.calculateSize, view));
+
+    return view;
+  },
+
+  // Render a single input, used to create and autocomplete facets
+  renderSearchInput : function() {
+    var input = new VS.ui.SearchInput({
+      position: this.inputViews.length, 
+      app: this.app,
+      showFacets: this.options.showFacets
+    });
+    this.$('.VS-search-inner').append(input.render().el);
+    this.inputViews.push(input);
+  },
+  
+  // Handles showing/hiding the placeholder text
+  renderPlaceholder : function() {
+    var $placeholder = this.$('.VS-placeholder');
+    if (this.app.searchQuery.length) {
+      $placeholder.addClass("VS-hidden");
+    } else {
+      $placeholder.removeClass("VS-hidden")
+                  .text(this.app.options.placeholder);
+    }
+  },
+
+  // # Modifying Facets #
+
+  // Clears out the search box. Command+A + delete can trigger this, as can a cancel button.
+  //
+  // If a `clearSearch` callback was provided, the callback is invoked and
+  // provided with a function performs the actual removal of the data.  This
+  // allows third-party developers to either clear data asynchronously, or
+  // prior to performing their custom "clear" logic.
+  clearSearch : function(e) {
+    var actualClearSearch = _.bind(function() {
+      this.disableFacets();
+      this.value('');
+      this.flags.allSelected = false;
+      this.searchEvent(e);
+      this.focusSearch(e);
+    }, this);
+
+    if (this.app.options.callbacks.clearSearch) {
+      this.app.options.callbacks.clearSearch(actualClearSearch);
+    } else {
+      actualClearSearch();
+    }
+  },
+
+  // Command+A selects all facets.
+  selectAllFacets : function() {
+    this.flags.allSelected = true;
+
+    $(document).one('click.selectAllFacets', this.deselectAllFacets);
+
+    _.each(this.facetViews, function(facetView, i) {
+      facetView.selectFacet();
+    });
+    _.each(this.inputViews, function(inputView, i) {
+      inputView.selectText();
+    });
+  },
+
+  // Used by facets and input to see if all facets are currently selected.
+  allSelected : function(deselect) {
+    if (deselect) this.flags.allSelected = false;
+    return this.flags.allSelected;
+  },
+
+  // After `selectAllFacets` is engaged, this method is bound to the entire document.
+  // This immediate disables and deselects all facets, but it also checks if the user
+  // has clicked on either a facet or an input, and properly selects the view.
+  deselectAllFacets : function(e) {
+    this.disableFacets();
+
+    if (this.$(e.target).is('.category,input')) {
+      var el   = $(e.target).closest('.search_facet,.search_input');
+      var view = _.detect(this.facetViews.concat(this.inputViews), function(v) {
+        return v.el == el[0];
+      });
+      if (view.type == 'facet') {
+        view.selectFacet();
+      } else if (view.type == 'input') {
+        _.defer(function() {
+          view.enableEdit(true);
+        });
+      }
+    }
+  },
+
+  // Disables all facets except for the passed in view. Used when switching between
+  // facets, so as not to have to keep state of active facets.
+  disableFacets : function(keepView) {
+    _.each(this.inputViews, function(view) {
+      if (view && view != keepView &&
+          (view.modes.editing == 'is' || view.modes.selected == 'is')) {
+        view.disableEdit();
+      }
+    });
+    _.each(this.facetViews, function(view) {
+      if (view && view != keepView &&
+          (view.modes.editing == 'is' || view.modes.selected == 'is')) {
+        view.disableEdit();
+        view.deselectFacet();
+      }
+    });
+
+    this.flags.allSelected = false;
+    this.removeFocus();
+    $(document).unbind('click.selectAllFacets');
+  },
+
+  // Resize all inputs to account for extra keystrokes which may be changing the facet
+  // width incorrectly. This is a safety check to ensure inputs are correctly sized.
+  resizeFacets : function(view) {
+    _.each(this.facetViews, function(facetView, i) {
+      if (!view || facetView == view) {
+        facetView.resize();
+      }
+    });
+  },
+
+  // Handles keydown events on the document. Used to complete the Cmd+A deletion, and
+  // blurring focus.
+  _maybeDisableFacets : function(e) {
+    if (this.flags.allSelected && VS.app.hotkeys.key(e) == 'backspace') {
+      e.preventDefault();
+      this.clearSearch(e);
+      return false;
+    } else if (this.flags.allSelected && VS.app.hotkeys.printable(e)) {
+      this.clearSearch(e);
+    }
+  },
+
+  // # Focusing Facets #
+
+  // Move focus between facets and inputs. Takes a direction as well as many options
+  // for skipping over inputs and only to facets, placement of cursor position in facet
+  // (i.e. at the end), and selecting the text in the input/facet.
+  focusNextFacet : function(currentView, direction, options) {
+    options = options || {};
+    var viewCount    = this.facetViews.length;
+    var viewPosition = options.viewPosition || this.viewPosition(currentView);
+
+    if (!options.skipToFacet) {
+      // Correct for bouncing between matching text and facet arrays.
+      if (currentView.type == 'text'  && direction > 0) direction -= 1;
+      if (currentView.type == 'facet' && direction < 0) direction += 1;
+    } else if (options.skipToFacet && currentView.type == 'text' &&
+               viewCount == viewPosition && direction >= 0) {
+      // Special case of looping around to a facet from the last search input box.
+      return false;
+    }
+    var view, next = Math.min(viewCount, viewPosition + direction);
+
+    if (currentView.type == 'text') {
+      if (next >= 0 && next < viewCount) {
+        view = this.facetViews[next];
+      } else if (next == viewCount) {
+        view = this.inputViews[this.inputViews.length-1];
+      }
+      if (view && options.selectFacet && view.type == 'facet') {
+        view.selectFacet();
+      } else if (view) {
+        view.enableEdit();
+        view.setCursorAtEnd(direction || options.startAtEnd);
+      }
+    } else if (currentView.type == 'facet') {
+      if (options.skipToFacet) {
+        if (next >= viewCount || next < 0) {
+          view = _.last(this.inputViews);
+          view.enableEdit();
+        } else {
+          view = this.facetViews[next];
+          view.enableEdit();
+          view.setCursorAtEnd(direction || options.startAtEnd);
+        }
+      } else {
+        view = this.inputViews[next];
+        view.enableEdit();
+      }
+    }
+    if (options.selectText) view.selectText();
+    this.resizeFacets();
+    
+    return true;
+  },
+
+  maybeFocusSearch : function(e) {
+    if ($(e.target).is('.VS-search-box') ||
+        $(e.target).is('.VS-search-inner') ||
+        e.type == 'keydown') {
+      this.focusSearch(e);
+    }
+  },
+
+  // Bring focus to last input field.
+  focusSearch : function(e, selectText) {
+    var view = this.inputViews[this.inputViews.length-1];
+    view.enableEdit(selectText);
+    if (!selectText) view.setCursorAtEnd(-1);
+    if (e.type == 'keydown') {
+      view.keydown(e);
+      view.box.trigger('keydown');
+    }
+    _.defer(_.bind(function() {
+      if (!this.$('input:focus').length) {
+        view.enableEdit(selectText);
+      }
+    }, this));
+  },
+
+  // Double-clicking on the search wrapper should select the existing text in
+  // the last search input. Also start the triple-click timer.
+  highlightSearch : function(e) {
+    if ($(e.target).is('.VS-search-box') ||
+        $(e.target).is('.VS-search-inner') ||
+        e.type == 'keydown') {
+      var lastinput = this.inputViews[this.inputViews.length-1];
+      lastinput.startTripleClickTimer();
+      this.focusSearch(e, true);
+    }
+  },
+
+  maybeTripleClick : function(e) {
+    var lastinput = this.inputViews[this.inputViews.length-1];
+    return lastinput.maybeTripleClick(e);
+  },
+
+  // Used to show the user is focused on some input inside the search box.
+  addFocus : function() {
+    this.app.options.callbacks.focus();
+    this.$('.VS-search-box').addClass('VS-focus');
+  },
+
+  // User is no longer focused on anything in the search box.
+  removeFocus : function() {
+    this.app.options.callbacks.blur();
+    var focus = _.any(this.facetViews.concat(this.inputViews), function(view) {
+      return view.isFocused();
+    });
+    if (!focus) this.$('.VS-search-box').removeClass('VS-focus');
+  },
+
+  // Show a menu which adds pre-defined facets to the search box. This is unused for now.
+  showFacetCategoryMenu : function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.facetCategoryMenu && this.facetCategoryMenu.modes.open == 'is') {
+      return this.facetCategoryMenu.close();
+    }
+
+    var items = [
+      {title: 'Account', onClick: _.bind(this.addFacet, this, 'account', '')},
+      {title: 'Project', onClick: _.bind(this.addFacet, this, 'project', '')},
+      {title: 'Filter', onClick: _.bind(this.addFacet, this, 'filter', '')},
+      {title: 'Access', onClick: _.bind(this.addFacet, this, 'access', '')}
+    ];
+
+    var menu = this.facetCategoryMenu || (this.facetCategoryMenu = new dc.ui.Menu({
+      items       : items,
+      standalone  : true
+    }));
+
+    this.$('.VS-icon-search').after(menu.render().open().content);
+    return false;
+  }
+
+});
+
+})();
+
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// This is the visual search facet that holds the category and its autocompleted
+// input field.
+VS.ui.SearchFacet = Backbone.View.extend({
+
+  type : 'facet',
+
+  className : 'search_facet',
+
+  events : {
+    'click .category'           : 'selectFacet',
+    'keydown input'             : 'keydown',
+    'mousedown input'           : 'enableEdit',
+    'mouseover .VS-icon-cancel' : 'showDelete',
+    'mouseout .VS-icon-cancel'  : 'hideDelete',
+    'click .VS-icon-cancel'     : 'remove'
+  },
+
+  initialize : function(options) {
+    this.flags = {
+      canClose : false
+    };
+    _.bindAll(this, 'set', 'keydown', 'deselectFacet', 'deferDisableEdit');
+  },
+
+  // Rendering the facet sets up autocompletion, events on blur, and populates
+  // the facet's input with its starting value.
+  render : function() {
+    $(this.el).html(JST['search_facet']({
+      model : this.model
+    }));
+
+    this.setMode('not', 'editing');
+    this.setMode('not', 'selected');
+    this.box = this.$('input');
+    console.log(["model", this.model]);
+    this.box.val(this.model.label());
+    this.box.bind('blur', this.deferDisableEdit);
+    // Handle paste events with `propertychange`
+    this.box.bind('input propertychange', this.keydown);
+    this.setupAutocomplete();
+
+    return this;
+  },
+
+  // This method is used to setup the facet's input to auto-grow.
+  // This is defered in the searchBox so it can be attached to the
+  // DOM to get the correct font-size.
+  calculateSize : function() {
+    this.box.autoGrowInput();
+    this.box.unbind('updated.autogrow');
+    this.box.bind('updated.autogrow', _.bind(this.moveAutocomplete, this));
+  },
+
+  // Forces a recalculation of this facet's input field's value. Called when
+  // the facet is focused, removed, or otherwise modified.
+  resize : function(e) {
+    this.box.trigger('resize.autogrow', e);
+  },
+
+  // Watches the facet's input field to see if it matches the beginnings of
+  // words in `autocompleteValues`, which is different for every category.
+  // If the value, when selected from the autocompletion menu, is different
+  // than what it was, commit the facet and search for it.
+  setupAutocomplete : function() {
+    this.box.autocomplete({
+      source    : _.bind(this.autocompleteValues, this),
+      minLength : 0,
+      delay     : 0,
+      autoFocus : true,
+      position  : {offset : "0 5"},
+      create    : _.bind(function(e, ui) {
+        $(this.el).find('.ui-autocomplete-input').css('z-index','auto');
+      }, this),
+      select    : _.bind(function(e, ui) {
+        e.preventDefault();
+        var originalValue = this.model.get('value');
+        this.set(ui.item.value);
+        if (originalValue != ui.item.value || this.box.val() != ui.item.value) {
+          if (this.options.app.options.autosearch) {
+            this.search(e);
+          } else {
+              this.options.app.searchBox.renderFacets();
+              this.options.app.searchBox.focusNextFacet(this, 1, {viewPosition: this.options.order});
+          }
+        }
+        return false;
+      }, this),
+      open      : _.bind(function(e, ui) {
+        var box = this.box;
+        this.box.autocomplete('widget').find('.ui-menu-item').each(function() {
+          var $value = $(this),
+              autoCompleteData = $value.data('item.autocomplete') || $value.data('ui-autocomplete-item');
+
+          if (autoCompleteData['value'] == box.val() && box.data('uiAutocomplete').menu.activate) {
+            box.data('uiAutocomplete').menu.activate(new $.Event("mouseover"), $value);
+          }
+        });
+      }, this)
+    });
+
+    this.box.autocomplete('widget').addClass('VS-interface');
+  },
+
+  // As the facet's input field grows, it may move to the next line in the
+  // search box. `autoGrowInput` triggers an `updated` event on the input
+  // field, which is bound to this method to move the autocomplete menu.
+  moveAutocomplete : function() {
+    var autocomplete = this.box.data('uiAutocomplete');
+    if (autocomplete) {
+      autocomplete.menu.element.position({
+        my        : "left top",
+        at        : "left bottom",
+        of        : this.box.data('uiAutocomplete').element,
+        collision : "flip",
+        offset    : "0 5"
+      });
+    }
+  },
+
+  // When a user enters a facet and it is being edited, immediately show
+  // the autocomplete menu and size it to match the contents.
+  searchAutocomplete : function(e) {
+    var autocomplete = this.box.data('uiAutocomplete');
+    if (autocomplete) {
+      var menu = autocomplete.menu.element;
+      autocomplete.search();
+
+      // Resize the menu based on the correctly measured width of what's bigger:
+      // the menu's original size or the menu items' new size.
+      menu.outerWidth(Math.max(
+        menu.width('').outerWidth(),
+        autocomplete.element.outerWidth()
+      ));
+    }
+  },
+
+  // Closes the autocomplete menu. Called on disabling, selecting, deselecting,
+  // and anything else that takes focus out of the facet's input field.
+  closeAutocomplete : function() {
+    var autocomplete = this.box.data('uiAutocomplete');
+    if (autocomplete) autocomplete.close();
+  },
+
+  // Search terms used in the autocomplete menu. These are specific to the facet,
+  // and only match for the facet's category. The values are then matched on the
+  // first letter of any word in matches, and finally sorted according to the
+  // value's own category. You can pass `preserveOrder` as an option in the 
+  // `facetMatches` callback to skip any further ordering done client-side.
+  autocompleteValues : function(req, resp) {
+    var category = this.model.get('category');
+    var value    = this.model.get('value');
+    var searchTerm = req.term;
+
+    this.options.app.options.callbacks.valueMatches(category, searchTerm, function(matches, options) {
+      options = options || {};
+      matches = matches || [];
+      
+      if (searchTerm && value != searchTerm) {
+        if (options.preserveMatches) {
+          resp(matches);
+        } else {
+          var re = VS.utils.inflector.escapeRegExp(searchTerm || '');
+          var matcher = new RegExp('\\b' + re, 'i');
+          matches = $.grep(matches, function(item) {
+            return matcher.test(item) ||
+                   matcher.test(item.value) ||
+                   matcher.test(item.label);
+        });
+        }
+      }
+      
+      if (options.preserveOrder) {
+        resp(matches);
+      } else {
+        resp(_.sortBy(matches, function(match) {
+          if (match == value || match.value == value) return '';
+          else return match;
+        }));
+      }
+    });
+
+  },
+
+  // Sets the facet's model's value.
+  set : function(value) {
+    if (!value) return;
+    this.model.set({'value': value});
+  },
+
+  // Before the searchBox performs a search, we need to close the
+  // autocomplete menu.
+  search : function(e, direction) {
+    if (!direction) direction = 1;
+    this.closeAutocomplete();
+    this.options.app.searchBox.searchEvent(e);
+    _.defer(_.bind(function() {
+      this.options.app.searchBox.focusNextFacet(this, direction, {viewPosition: this.options.order});
+    }, this));
+  },
+
+  // Begin editing the facet's input. This is called when the user enters
+  // the input either from another facet or directly clicking on it.
+  //
+  // This method tells all other facets and inputs to disable so it can have
+  // the sole focus. It also prepares the autocompletion menu.
+  enableEdit : function() {
+    if (this.modes.editing != 'is') {
+      this.setMode('is', 'editing');
+      this.deselectFacet();
+      if (this.box.val() == '') {
+        this.box.val(this.model.get('value'));
+      }
+    }
+
+    this.flags.canClose = false;
+    this.options.app.searchBox.disableFacets(this);
+    this.options.app.searchBox.addFocus();
+    _.defer(_.bind(function() {
+      this.options.app.searchBox.addFocus();
+    }, this));
+    this.resize();
+    this.searchAutocomplete();
+    this.box.focus();
+  },
+
+  // When the user blurs the input, they may either be going to another input
+  // or off the search box entirely. If they go to another input, this facet
+  // will be instantly disabled, and the canClose flag will be turned back off.
+  //
+  // However, if the user clicks elsewhere on the page, this method starts a timer
+  // that checks if any of the other inputs are selected or are being edited. If
+  // not, then it can finally close itself and its autocomplete menu.
+  deferDisableEdit : function() {
+    this.flags.canClose = true;
+    _.delay(_.bind(function() {
+      if (this.flags.canClose && !this.box.is(':focus') &&
+          this.modes.editing == 'is' && this.modes.selected != 'is') {
+        this.disableEdit();
+      }
+    }, this), 250);
+  },
+
+  // Called either by other facets receiving focus or by the timer in `deferDisableEdit`,
+  // this method will turn off the facet, remove any text selection, and close
+  // the autocomplete menu.
+  disableEdit : function() {
+    var newFacetQuery = VS.utils.inflector.trim(this.box.val());
+    if (newFacetQuery != this.model.get('value')) {
+      this.set(newFacetQuery);
+    }
+    this.flags.canClose = false;
+    this.box.selectRange(0, 0);
+    this.box.blur();
+    this.setMode('not', 'editing');
+    this.closeAutocomplete();
+    this.options.app.searchBox.removeFocus();
+  },
+
+  // Selects the facet, which blurs the facet's input and highlights the facet.
+  // If this is the only facet being selected (and not part of a select all event),
+  // we attach a mouse/keyboard watcher to check if the next action by the user
+  // should delete this facet or just deselect it.
+  selectFacet : function(e) {
+    if (e) e.preventDefault();
+    var allSelected = this.options.app.searchBox.allSelected();
+    if (this.modes.selected == 'is') return;
+
+    if (this.box.is(':focus')) {
+      this.box.setCursorPosition(0);
+      this.box.blur();
+    }
+
+    this.flags.canClose = false;
+    this.closeAutocomplete();
+    this.setMode('is', 'selected');
+    this.setMode('not', 'editing');
+    if (!allSelected || e) {
+      $(document).unbind('keydown.facet', this.keydown);
+      $(document).unbind('click.facet', this.deselectFacet);
+      _.defer(_.bind(function() {
+        $(document).unbind('keydown.facet').bind('keydown.facet', this.keydown);
+        $(document).unbind('click.facet').one('click.facet', this.deselectFacet);
+      }, this));
+      this.options.app.searchBox.disableFacets(this);
+      this.options.app.searchBox.addFocus();
+    }
+    return false;
+  },
+
+  // Turns off highlighting on the facet. Called in a variety of ways, this
+  // only deselects the facet if it is selected, and then cleans up the
+  // keyboard/mouse watchers that were created when the facet was first
+  // selected.
+  deselectFacet : function(e) {
+    if (e) e.preventDefault();
+    if (this.modes.selected == 'is') {
+      this.setMode('not', 'selected');
+      this.closeAutocomplete();
+      this.options.app.searchBox.removeFocus();
+    }
+    $(document).unbind('keydown.facet', this.keydown);
+    $(document).unbind('click.facet', this.deselectFacet);
+    return false;
+  },
+
+  // Is the user currently focused in this facet's input field?
+  isFocused : function() {
+    return this.box.is(':focus');
+  },
+
+  // Hovering over the delete button styles the facet so the user knows that
+  // the delete button will kill the entire facet.
+  showDelete : function() {
+    $(this.el).addClass('search_facet_maybe_delete');
+  },
+
+  // On `mouseout`, the user is no longer hovering on the delete button.
+  hideDelete : function() {
+    $(this.el).removeClass('search_facet_maybe_delete');
+  },
+
+  // When switching between facets, depending on the direction the cursor is
+  // coming from, the cursor in this facet's input field should match the original
+  // direction.
+  setCursorAtEnd : function(direction) {
+    if (direction == -1) {
+      this.box.setCursorPosition(this.box.val().length);
+    } else {
+      this.box.setCursorPosition(0);
+    }
+  },
+
+  // Deletes the facet and sends the cursor over to the nearest input field.
+  remove : function(e) {
+    var committed = this.model.get('value');
+    this.deselectFacet();
+    this.disableEdit();
+    this.options.app.searchQuery.remove(this.model);
+    if (committed && this.options.app.options.autosearch) {
+      this.search(e, -1);
+    } else {
+      this.options.app.searchBox.renderFacets();
+      this.options.app.searchBox.focusNextFacet(this, -1, {viewPosition: this.options.order});
+    }
+  },
+
+  // Selects the text in the facet's input field. When the user tabs between
+  // facets, convention is to highlight the entire field.
+  selectText: function() {
+    this.box.selectRange(0, this.box.val().length);
+  },
+
+  // Handles all keyboard inputs when in the facet's input field. This checks
+  // for movement between facets and inputs, entering a new value that needs
+  // to be autocompleted, as well as the removal of this facet.
+  keydown : function(e) {
+    var key = VS.app.hotkeys.key(e);
+
+    if (key == 'enter' && this.box.val()) {
+      this.disableEdit();
+      this.search(e);
+    } else if (key == 'left') {
+      if (this.modes.selected == 'is') {
+        this.deselectFacet();
+        this.options.app.searchBox.focusNextFacet(this, -1, {startAtEnd: -1});
+      } else if (this.box.getCursorPosition() == 0 && !this.box.getSelection().length) {
+        this.selectFacet();
+      }
+    } else if (key == 'right') {
+      if (this.modes.selected == 'is') {
+        e.preventDefault();
+        this.deselectFacet();
+        this.setCursorAtEnd(0);
+        this.enableEdit();
+      } else if (this.box.getCursorPosition() == this.box.val().length) {
+        e.preventDefault();
+        this.disableEdit();
+        this.options.app.searchBox.focusNextFacet(this, 1);
+      }
+    } else if (VS.app.hotkeys.shift && key == 'tab') {
+      e.preventDefault();
+      this.options.app.searchBox.focusNextFacet(this, -1, {
+        startAtEnd  : -1,
+        skipToFacet : true,
+        selectText  : true
+      });
+    } else if (key == 'tab') {
+      e.preventDefault();
+      this.options.app.searchBox.focusNextFacet(this, 1, {
+        skipToFacet : true,
+        selectText  : true
+      });
+    } else if (VS.app.hotkeys.command && (e.which == 97 || e.which == 65)) {
+      e.preventDefault();
+      this.options.app.searchBox.selectAllFacets();
+      return false;
+    } else if (VS.app.hotkeys.printable(e) && this.modes.selected == 'is') {
+      this.options.app.searchBox.focusNextFacet(this, -1, {startAtEnd: -1});
+      this.remove(e);
+    } else if (key == 'backspace') {
+      if (this.modes.selected == 'is') {
+        e.preventDefault();
+        this.remove(e);
+      } else if (this.box.getCursorPosition() == 0 &&
+                 !this.box.getSelection().length) {
+        e.preventDefault();
+        this.selectFacet();
+      }
+    }
+
+    // Handle paste events
+    if (e.which == null) {
+        // this.searchAutocomplete(e);
+        _.defer(_.bind(this.resize, this, e));
+    } else {
+      this.resize(e);
+    }
+  }
+
+});
+
+})();
+
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// This is the visual search input that is responsible for creating new facets.
+// There is one input placed in between all facets.
+VS.ui.SearchInput = Backbone.View.extend({
+
+  type : 'text',
+
+  className : 'search_input ui-menu',
+
+  events : {
+    'keypress input'  : 'keypress',
+    'keydown input'   : 'keydown',
+    'click input'     : 'maybeTripleClick',
+    'dblclick input'  : 'startTripleClickTimer'
+  },
+
+  initialize : function() {
+    this.app = this.options.app;
+    this.flags = {
+      canClose : false
+    };
+    _.bindAll(this, 'removeFocus', 'addFocus', 'moveAutocomplete', 'deferDisableEdit');
+  },
+
+  // Rendering the input sets up autocomplete, events on focusing and blurring
+  // the input, and the auto-grow of the input.
+  render : function() {
+    $(this.el).html(JST['search_input']({}));
+
+    this.setMode('not', 'editing');
+    this.setMode('not', 'selected');
+    this.box = this.$('input');
+    this.box.autoGrowInput();
+    this.box.bind('updated.autogrow', this.moveAutocomplete);
+    this.box.bind('blur',  this.deferDisableEdit);
+    this.box.bind('focus', this.addFocus);
+    this.setupAutocomplete();
+
+    return this;
+  },
+
+  // Watches the input and presents an autocompleted menu, taking the
+  // remainder of the input field and adding a separate facet for it.
+  //
+  // See `addTextFacetRemainder` for explanation on how the remainder works.
+  setupAutocomplete : function() {
+    this.box.autocomplete({
+      minLength : this.options.showFacets ? 0 : 1,
+      delay     : 50,
+      autoFocus : true,
+      position  : {offset : "0 -1"},
+      source    : _.bind(this.autocompleteValues, this),
+      create    : _.bind(function(e, ui) {
+        $(this.el).find('.ui-autocomplete-input').css('z-index','auto');
+      }, this),
+      select    : _.bind(function(e, ui) {
+        e.preventDefault();
+        // stopPropogation does weird things in jquery-ui 1.9
+        // e.stopPropagation();
+        var remainder = this.addTextFacetRemainder(ui.item.value);
+        var position  = this.options.position + (remainder ? 1 : 0);
+        this.app.searchBox.addFacet(ui.item instanceof String ? ui.item : ui.item.value, '', position);
+        return false;
+      }, this)
+    });
+
+    // Renders the results grouped by the categories they belong to.
+    this.box.data('uiAutocomplete')._renderMenu = function(ul, items) {
+      var category = '';
+      _.each(items, _.bind(function(item, i) {
+        if (item.category && item.category != category) {
+          ul.append('<li class="ui-autocomplete-category">'+item.category+'</li>');
+          category = item.category;
+        }
+        
+        if(this._renderItemData) {
+          this._renderItemData(ul, item);
+        } else {
+          this._renderItem(ul, item);
+        }
+        
+      }, this));
+    };
+
+    this.box.autocomplete('widget').addClass('VS-interface');
+  },
+
+  // Search terms used in the autocomplete menu. The values are matched on the
+  // first letter of any word in matches, and finally sorted according to the
+  // value's own category. You can pass `preserveOrder` as an option in the
+  // `facetMatches` callback to skip any further ordering done client-side.
+  autocompleteValues : function(req, resp) {
+    var searchTerm = req.term;
+    var lastWord   = searchTerm.match(/\w+\*?$/); // Autocomplete only last word.
+    var re         = VS.utils.inflector.escapeRegExp(lastWord && lastWord[0] || '');
+    this.app.options.callbacks.facetMatches(function(prefixes, options) {
+      options = options || {};
+      prefixes = prefixes || [];
+
+      // Only match from the beginning of the word.
+      var matcher    = new RegExp('^' + re, 'i');
+      var matches    = $.grep(prefixes, function(item) {
+        return item && matcher.test(item.label || item);
+      });
+
+      if (options.preserveOrder) {
+        resp(matches);
+      } else {
+        resp(_.sortBy(matches, function(match) {
+          if (match.label) return match.category + '-' + match.label;
+          else             return match;
+        }));
+      }
+    });
+
+  },
+
+  // Closes the autocomplete menu. Called on disabling, selecting, deselecting,
+  // and anything else that takes focus out of the facet's input field.
+  closeAutocomplete : function() {
+    var autocomplete = this.box.data('uiAutocomplete');
+    if (autocomplete) autocomplete.close();
+  },
+
+  // As the input field grows, it may move to the next line in the
+  // search box. `autoGrowInput` triggers an `updated` event on the input
+  // field, which is bound to this method to move the autocomplete menu.
+  moveAutocomplete : function() {
+    var autocomplete = this.box.data('uiAutocomplete');
+    if (autocomplete) {
+      autocomplete.menu.element.position({
+        my        : "left top",
+        at        : "left bottom",
+        of        : this.box.data('uiAutocomplete').element,
+        collision : "none",
+        offset    : '0 -1'
+      });
+    }
+  },
+
+  // When a user enters a facet and it is being edited, immediately show
+  // the autocomplete menu and size it to match the contents.
+  searchAutocomplete : function(e) {
+    var autocomplete = this.box.data('uiAutocomplete');
+    if (autocomplete) {
+      var menu = autocomplete.menu.element;
+      autocomplete.search();
+
+      // Resize the menu based on the correctly measured width of what's bigger:
+      // the menu's original size or the menu items' new size.
+      menu.outerWidth(Math.max(
+        menu.width('').outerWidth(),
+        autocomplete.element.outerWidth()
+      ));
+    }
+  },
+
+  // If a user searches for "word word category", the category would be
+  // matched and autocompleted, and when selected, the "word word" would
+  // also be caught as the remainder and then added in its own facet.
+  addTextFacetRemainder : function(facetValue) {
+    var boxValue = this.box.val();
+    var lastWord = boxValue.match(/\b(\w+)$/);
+    
+    if (!lastWord) {
+      return '';
+    }
+
+    var matcher = new RegExp(lastWord[0], "i");
+    if (facetValue.search(matcher) == 0) {
+      boxValue = boxValue.replace(/\b(\w+)$/, '');
+    }
+    boxValue = boxValue.replace('^\s+|\s+$', '');
+    
+    if (boxValue) {
+      this.app.searchBox.addFacet(this.app.options.remainder, boxValue, this.options.position);
+    }
+    
+    return boxValue;
+  },
+
+  // Directly called to focus the input. This is different from `addFocus`
+  // because this is not called by a focus event. This instead calls a
+  // focus event causing the input to become focused.
+  enableEdit : function(selectText) {
+    this.addFocus();
+    if (selectText) {
+      this.selectText();
+    }
+    this.box.focus();
+  },
+
+  // Event called on user focus on the input. Tells all other input and facets
+  // to give up focus, and starts revving the autocomplete.
+  addFocus : function() {
+    this.flags.canClose = false;
+    if (!this.app.searchBox.allSelected()) {
+      this.app.searchBox.disableFacets(this);
+    }
+    this.app.searchBox.addFocus();
+    this.setMode('is', 'editing');
+    this.setMode('not', 'selected');
+    if (!this.app.searchBox.allSelected()) {
+        this.searchAutocomplete();
+    }
+  },
+
+  // Directly called to blur the input. This is different from `removeFocus`
+  // because this is not called by a blur event.
+  disableEdit : function() {
+    this.box.blur();
+    this.removeFocus();
+  },
+
+  // Event called when user blur's the input, either through the keyboard tabbing
+  // away or the mouse clicking off. Cleans up
+  removeFocus : function() {
+    this.flags.canClose = false;
+    this.app.searchBox.removeFocus();
+    this.setMode('not', 'editing');
+    this.setMode('not', 'selected');
+    this.closeAutocomplete();
+  },
+
+  // When the user blurs the input, they may either be going to another input
+  // or off the search box entirely. If they go to another input, this facet
+  // will be instantly disabled, and the canClose flag will be turned back off.
+  //
+  // However, if the user clicks elsewhere on the page, this method starts a timer
+  // that checks if any of the other inputs are selected or are being edited. If
+  // not, then it can finally close itself and its autocomplete menu.
+  deferDisableEdit : function() {
+    this.flags.canClose = true;
+    _.delay(_.bind(function() {
+      if (this.flags.canClose &&
+          !this.box.is(':focus') &&
+          this.modes.editing == 'is') {
+        this.disableEdit();
+      }
+    }, this), 250);
+  },
+
+  // Starts a timer that will cause a triple-click, which highlights all facets.
+  startTripleClickTimer : function() {
+    this.tripleClickTimer = setTimeout(_.bind(function() {
+      this.tripleClickTimer = null;
+    }, this), 500);
+  },
+
+  // Event on click that checks if a triple click is in play. The
+  // `tripleClickTimer` is counting down, ready to be engaged and intercept
+  // the click event to force a select all instead.
+  maybeTripleClick : function(e) {
+    if (!!this.tripleClickTimer) {
+      e.preventDefault();
+      this.app.searchBox.selectAllFacets();
+      return false;
+    }
+  },
+
+  // Is the user currently focused in the input field?
+  isFocused : function() {
+    return this.box.is(':focus');
+  },
+
+  // When serializing the facets, the inputs need to also have their values represented,
+  // in case they contain text that is not yet faceted (but will be once the search is
+  // completed).
+  value : function() {
+    return this.box.val();
+  },
+
+  // When switching between facets and inputs, depending on the direction the cursor
+  // is coming from, the cursor in this facet's input field should match the original
+  // direction.
+  setCursorAtEnd : function(direction) {
+    if (direction == -1) {
+      this.box.setCursorPosition(this.box.val().length);
+    } else {
+      this.box.setCursorPosition(0);
+    }
+  },
+
+  // Selects the entire range of text in the input. Useful when tabbing between inputs
+  // and facets.
+  selectText : function() {
+    this.box.selectRange(0, this.box.val().length);
+    if (!this.app.searchBox.allSelected()) {
+      this.box.focus();
+    } else {
+      this.setMode('is', 'selected');
+    }
+  },
+
+  // Before the searchBox performs a search, we need to close the
+  // autocomplete menu.
+  search : function(e, direction) {
+    if (!direction) direction = 0;
+    this.closeAutocomplete();
+    this.app.searchBox.searchEvent(e);
+    _.defer(_.bind(function() {
+      this.app.searchBox.focusNextFacet(this, direction);
+    }, this));
+  },
+
+  // Callback fired on key press in the search box. We search when they hit return.
+  keypress : function(e) {
+    var key = VS.app.hotkeys.key(e);
+
+    if (key == 'enter') {
+      return this.search(e, 100);
+    } else if (VS.app.hotkeys.colon(e)) {
+      this.box.trigger('resize.autogrow', e);
+      var query    = this.box.val();
+      var prefixes = [];
+      if (this.app.options.callbacks.facetMatches) {
+          this.app.options.callbacks.facetMatches(function(p) {
+              prefixes = p;
+          });
+      }
+      var labels   = _.map(prefixes, function(prefix) {
+        if (prefix.label) return prefix.label;
+        else              return prefix;
+      });
+      if (_.contains(labels, query)) {
+        e.preventDefault();
+        var remainder = this.addTextFacetRemainder(query);
+        var position  = this.options.position + (remainder?1:0);
+        this.app.searchBox.addFacet(query, '', position);
+        return false;
+      }
+    } else if (key == 'backspace') {
+      if (this.box.getCursorPosition() == 0 && !this.box.getSelection().length) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        this.app.searchBox.resizeFacets();
+        return false;
+      }
+    }
+  },
+
+  // Handles all keyboard inputs when in the input field. This checks
+  // for movement between facets and inputs, entering a new value that needs
+  // to be autocompleted, as well as stepping between facets with backspace.
+  keydown : function(e) {
+    var key = VS.app.hotkeys.key(e);
+
+    if (key == 'left') {
+      if (this.box.getCursorPosition() == 0) {
+        e.preventDefault();
+        this.app.searchBox.focusNextFacet(this, -1, {startAtEnd: -1});
+      }
+    } else if (key == 'right') {
+      if (this.box.getCursorPosition() == this.box.val().length) {
+        e.preventDefault();
+        this.app.searchBox.focusNextFacet(this, 1, {selectFacet: true});
+      }
+    } else if (VS.app.hotkeys.shift && key == 'tab') {
+      e.preventDefault();
+      this.app.searchBox.focusNextFacet(this, -1, {selectText: true});
+    } else if (key == 'tab') {
+      var value = this.box.val();
+      if (value.length) {
+        e.preventDefault();
+        var remainder = this.addTextFacetRemainder(value);
+        var position  = this.options.position + (remainder?1:0);
+        if (value != remainder) {
+            this.app.searchBox.addFacet(value, '', position);
+        }
+      } else {
+        var foundFacet = this.app.searchBox.focusNextFacet(this, 0, {
+          skipToFacet: true,
+          selectText: true
+        });
+        if (foundFacet) {
+          e.preventDefault();
+        }
+      }
+    } else if (VS.app.hotkeys.command &&
+               String.fromCharCode(e.which).toLowerCase() == 'a') {
+      e.preventDefault();
+      this.app.searchBox.selectAllFacets();
+      return false;
+    } else if (key == 'backspace' && !this.app.searchBox.allSelected()) {
+      if (this.box.getCursorPosition() == 0 && !this.box.getSelection().length) {
+        e.preventDefault();
+        this.app.searchBox.focusNextFacet(this, -1, {backspace: true});
+        return false;
+      }
+    } else if (key == 'end') {
+      var view = this.app.searchBox.inputViews[this.app.searchBox.inputViews.length-1];
+      view.setCursorAtEnd(-1);
+    } else if (key == 'home') {
+      var view = this.app.searchBox.inputViews[0];
+      view.setCursorAtEnd(-1);
+    }
+
+    this.box.trigger('resize.autogrow', e);
+  }
+
+});
+
+})();
+
+(function(){
+
+  var $ = jQuery; // Handle namespaced jQuery
+
+  // Makes the view enter a mode. Modes have both a 'mode' and a 'group',
+  // and are mutually exclusive with any other modes in the same group.
+  // Setting will update the view's modes hash, as well as set an HTML class
+  // of *[mode]_[group]* on the view's element. Convenient way to swap styles
+  // and behavior.
+  Backbone.View.prototype.setMode = function(mode, group) {
+    this.modes || (this.modes = {});
+    if (this.modes[group] === mode) return;
+    $(this.el).setMode(mode, group);
+    this.modes[group] = mode;
+  };
+
+})();
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// DocumentCloud workspace hotkeys. To tell if a key is currently being pressed,
+// just ask `VS.app.hotkeys.[key]` on `keypress`, or ask `VS.app.hotkeys.key(e)`
+// on `keydown`.
+//
+// For the most headache-free way to use this utility, check modifier keys,
+// like shift and command, with `VS.app.hotkeys.shift`, and check every other
+// key with `VS.app.hotkeys.key(e) == 'key_name'`.
+VS.app.hotkeys = {
+
+  // Keys that will be mapped to the `hotkeys` namespace.
+  KEYS: {
+    '16':  'shift',
+    '17':  'command',
+    '91':  'command',
+    '93':  'command',
+    '224': 'command',
+    '13':  'enter',
+    '37':  'left',
+    '38':  'upArrow',
+    '39':  'right',
+    '40':  'downArrow',
+    '46':  'delete',
+    '8':   'backspace',
+    '35':  'end',
+    '36':  'home',
+    '9':   'tab',
+    '188': 'comma'
+  },
+
+  // Binds global keydown and keyup events to listen for keys that match `this.KEYS`.
+  initialize : function() {
+    _.bindAll(this, 'down', 'up', 'blur');
+    $(document).bind('keydown', this.down);
+    $(document).bind('keyup', this.up);
+    $(window).bind('blur', this.blur);
+  },
+
+  // On `keydown`, turn on all keys that match.
+  down : function(e) {
+    var key = this.KEYS[e.which];
+    if (key) this[key] = true;
+  },
+
+  // On `keyup`, turn off all keys that match.
+  up : function(e) {
+    var key = this.KEYS[e.which];
+    if (key) this[key] = false;
+  },
+
+  // If an input is blurred, all keys need to be turned off, since they are no longer
+  // able to modify the document.
+  blur : function(e) {
+    for (var key in this.KEYS) this[this.KEYS[key]] = false;
+  },
+
+  // Check a key from an event and return the common english name.
+  key : function(e) {
+    return this.KEYS[e.which];
+  },
+
+  // Colon is special, since the value is different between browsers.
+  colon : function(e) {
+    var charCode = e.which;
+    return charCode && String.fromCharCode(charCode) == ":";
+  },
+
+  // Check a key from an event and match it against any known characters.
+  // The `keyCode` is different depending on the event type: `keydown` vs. `keypress`.
+  //
+  // These were determined by looping through every `keyCode` and `charCode` that
+  // resulted from `keydown` and `keypress` events and counting what was printable.
+  printable : function(e) {
+    var code = e.which;
+    if (e.type == 'keydown') {
+      if (code == 32 ||                      // space
+          (code >= 48 && code <= 90) ||      // 0-1a-z
+          (code >= 96 && code <= 111) ||     // 0-9+-/*.
+          (code >= 186 && code <= 192) ||    // ;=,-./^
+          (code >= 219 && code <= 222)) {    // (\)'
+        return true;
+      }
+    } else {
+      // [space]!"#$%&'()*+,-.0-9:;<=>?@A-Z[\]^_`a-z{|} and unicode characters
+      if ((code >= 32 && code <= 126)  ||
+          (code >= 160 && code <= 500) ||
+          (String.fromCharCode(code) == ":")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+};
+
+})();
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// Naive English transformations on words. Only used for a few transformations 
+// in VisualSearch.js.
+VS.utils.inflector = {
+
+  // Delegate to the ECMA5 String.prototype.trim function, if available.
+  trim : function(s) {
+    return s.trim ? s.trim() : s.replace(/^\s+|\s+$/g, '');
+  },
+  
+  // Escape strings that are going to be used in a regex. Escapes punctuation
+  // that would be incorrect in a regex.
+  escapeRegExp : function(s) {
+    return s.replace(/([.*+?^${}()|[\]\/\\])/g, '\\$1');
+  }
+};
+
+})();
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+$.fn.extend({
+
+  // Makes the selector enter a mode. Modes have both a 'mode' and a 'group',
+  // and are mutually exclusive with any other modes in the same group.
+  // Setting will update the view's modes hash, as well as set an HTML class
+  // of *[mode]_[group]* on the view's element. Convenient way to swap styles
+  // and behavior.
+  setMode : function(state, group) {
+    group    = group || 'mode';
+    var re   = new RegExp("\\w+_" + group + "(\\s|$)", 'g');
+    var mode = (state === null) ? "" : state + "_" + group;
+    this.each(function() {
+      this.className = (this.className.replace(re, '')+' '+mode)
+                       .replace(/\s\s/g, ' ');
+    });
+    return mode;
+  },
+
+  // When attached to an input element, this will cause the width of the input
+  // to match its contents. This calculates the width of the contents of the input
+  // by measuring a hidden shadow div that should match the styling of the input.
+  autoGrowInput: function() {
+    return this.each(function() {
+      var $input  = $(this);
+      var $tester = $('<div />').css({
+        opacity     : 0,
+        top         : -9999,
+        left        : -9999,
+        position    : 'absolute',
+        whiteSpace  : 'nowrap'
+      }).addClass('VS-input-width-tester').addClass('VS-interface');
+
+      // Watch for input value changes on all of these events. `resize`
+      // event is called explicitly when the input has been changed without
+      // a single keypress.
+      var events = 'keydown.autogrow keypress.autogrow ' +
+                   'resize.autogrow change.autogrow';
+      $input.next('.VS-input-width-tester').remove();
+      $input.after($tester);
+      $input.unbind(events).bind(events, function(e, realEvent) {
+        if (realEvent) e = realEvent;
+        var value = $input.val();
+
+        // Watching for the backspace key is tricky because it may not
+        // actually be deleting the character, but instead the key gets
+        // redirected to move the cursor from facet to facet.
+        if (VS.app.hotkeys.key(e) == 'backspace') {
+          var position = $input.getCursorPosition();
+          if (position > 0) value = value.slice(0, position-1) +
+                                    value.slice(position, value.length);
+        } else if (VS.app.hotkeys.printable(e) &&
+                   !VS.app.hotkeys.command) {
+          value += String.fromCharCode(e.which);
+        }
+        value = value.replace(/&/g, '&amp;')
+                     .replace(/\s/g,'&nbsp;')
+                     .replace(/</g, '&lt;')
+                     .replace(/>/g, '&gt;');
+
+        $tester.html(value);
+
+        $input.width($tester.width() + 3 + parseInt($input.css('min-width')));
+        $input.trigger('updated.autogrow');
+      });
+
+      // Sets the width of the input on initialization.
+      $input.trigger('resize.autogrow');
+    });
+  },
+
+
+  // Cross-browser method used for calculating where the cursor is in an
+  // input field.
+  getCursorPosition: function() {
+    var position = 0;
+    var input    = this.get(0);
+
+    if (document.selection) { // IE
+      input.focus();
+      var sel    = document.selection.createRange();
+      var selLen = document.selection.createRange().text.length;
+      sel.moveStart('character', -input.value.length);
+      position   = sel.text.length - selLen;
+    } else if (input && $(input).is(':visible') &&
+               input.selectionStart != null) { // Firefox/Safari
+      position = input.selectionStart;
+    }
+
+    return position;
+  },
+
+  // A simple proxy for `selectRange` that sets the cursor position in an
+  // input field.
+  setCursorPosition: function(position) {
+    return this.each(function() {
+      return $(this).selectRange(position, position);
+    });
+  },
+
+  // Cross-browser way to select text in an input field.
+  selectRange: function(start, end) {
+    return this.filter(':visible').each(function() {
+      if (this.setSelectionRange) { // FF/Webkit
+        this.focus();
+        this.setSelectionRange(start, end);
+      } else if (this.createTextRange) { // IE
+        var range = this.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', end);
+        range.moveStart('character', start);
+        if (end - start >= 0) range.select();
+      }
+    });
+  },
+
+  // Returns an object that contains the text selection range values for
+  // an input field.
+  getSelection: function() {
+    var input = this[0];
+
+    if (input.selectionStart != null) { // FF/Webkit
+      var start = input.selectionStart;
+      var end   = input.selectionEnd;
+      return {
+        start   : start,
+        end     : end,
+        length  : end-start,
+        text    : input.value.substr(start, end-start)
+      };
+    } else if (document.selection) { // IE
+      var range = document.selection.createRange();
+      if (range) {
+        var textRange = input.createTextRange();
+        var copyRange = textRange.duplicate();
+        textRange.moveToBookmark(range.getBookmark());
+        copyRange.setEndPoint('EndToStart', textRange);
+        var start = copyRange.text.length;
+        var end   = start + range.text.length;
+        return {
+          start   : start,
+          end     : end,
+          length  : end-start,
+          text    : range.text
+        };
+      }
+    }
+    return {start: 0, end: 0, length: 0};
+  }
+
+});
+
+// Debugging in Internet Explorer. This allows you to use 
+// `console.log(['message', var1, var2, ...])`. Just remove the `false` and
+// add your console.logs. This will automatically stringify objects using
+// `JSON.stringify', so you can read what's going out. Think of this as a
+// *Diet Firebug Lite Zero with Lemon*.
+if (false) {
+  window.console = {};
+  var _$ied;
+  window.console.log = function(msg) {
+    if (_.isArray(msg)) {
+      var message = msg[0];
+      var vars = _.map(msg.slice(1), function(arg) {
+        return JSON.stringify(arg);
+      }).join(' - ');
+    }
+    if(!_$ied){
+      _$ied = $('<div><ol></ol></div>').css({
+        'position': 'fixed',
+        'bottom': 10,
+        'left': 10,
+        'zIndex': 20000,
+        'width': $('body').width() - 80,
+        'border': '1px solid #000',
+        'padding': '10px',
+        'backgroundColor': '#fff',
+        'fontFamily': 'arial,helvetica,sans-serif',
+        'fontSize': '11px'
+      });
+      $('body').append(_$ied);
+    }
+    var $message = $('<li>'+message+' - '+vars+'</li>').css({
+      'borderBottom': '1px solid #999999'
+    });
+    _$ied.find('ol').append($message);
+    _.delay(function() {
+      $message.fadeOut(500);
+    }, 5000);
+  };
+
+}
+
+})();
+
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// Used to extract keywords and facets from the free text search.
+var QUOTES_RE   = "('[^']+'|\"[^\"]+\")";
+var FREETEXT_RE = "('[^']+'|\"[^\"]+\"|[^'\"\\s]\\S*)";
+var CATEGORY_RE = FREETEXT_RE +                     ':\\s*';
+VS.app.SearchParser = {
+
+  // Matches `category: "free text"`, with and without quotes.
+  ALL_FIELDS : new RegExp(CATEGORY_RE + FREETEXT_RE, 'g'),
+
+  // Matches a single category without the text. Used to correctly extract facets.
+  CATEGORY   : new RegExp(CATEGORY_RE),
+
+  // Called to parse a query into a collection of `SearchFacet` models.
+  parse : function(instance, query) {
+    var searchFacets = this._extractAllFacets(instance, query);
+    instance.searchQuery.reset(searchFacets);
+    return searchFacets;
+  },
+
+  // Walks the query and extracts facets, categories, and free text.
+  _extractAllFacets : function(instance, query) {
+    var facets = [];
+    var originalQuery = query;
+    while (query) {
+      var category, value;
+      originalQuery = query;
+      var field = this._extractNextField(query);
+      if (!field) {
+        category = instance.options.remainder;
+        value    = this._extractSearchText(query);
+        query    = VS.utils.inflector.trim(query.replace(value, ''));
+      } else if (field.indexOf(':') != -1) {
+        category = field.match(this.CATEGORY)[1].replace(/(^['"]|['"]$)/g, '');
+        value    = field.replace(this.CATEGORY, '').replace(/(^['"]|['"]$)/g, '');
+        query    = VS.utils.inflector.trim(query.replace(field, ''));
+      } else if (field.indexOf(':') == -1) {
+        category = instance.options.remainder;
+        value    = field;
+        query    = VS.utils.inflector.trim(query.replace(value, ''));
+      }
+
+      if (category && value) {
+          var searchFacet = new VS.model.SearchFacet({
+            category : category,
+            value    : VS.utils.inflector.trim(value),
+            app      : instance
+          });
+          facets.push(searchFacet);
+      }
+      if (originalQuery == query) break;
+    }
+
+    return facets;
+  },
+
+  // Extracts the first field found, capturing any free text that comes
+  // before the category.
+  _extractNextField : function(query) {
+    var textRe = new RegExp('^\\s*(\\S+)\\s+(?=' + QUOTES_RE + FREETEXT_RE + ')');
+    var textMatch = query.match(textRe);
+    if (textMatch && textMatch.length >= 1) {
+      return textMatch[1];
+    } else {
+      return this._extractFirstField(query);
+    }
+  },
+
+  // If there is no free text before the facet, extract the category and value.
+  _extractFirstField : function(query) {
+    var fields = query.match(this.ALL_FIELDS);
+    return fields && fields.length && fields[0];
+  },
+
+  // If the found match is not a category and facet, extract the trimmed free text.
+  _extractSearchText : function(query) {
+    query = query || '';
+    var text = VS.utils.inflector.trim(query.replace(this.ALL_FIELDS, ''));
+    return text;
+  }
+
+};
+
+})();
+
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// The model that holds individual search facets and their categories.
+// Held in a collection by `VS.app.searchQuery`.
+VS.model.SearchFacet = Backbone.Model.extend({
+
+  // Extract the category and value and serialize it in preparation for
+  // turning the entire searchBox into a search query that can be sent
+  // to the server for parsing and searching.
+  serialize : function() {
+    var category = this.quoteCategory(this.get('category'));
+    var value    = VS.utils.inflector.trim(this.get('value'));
+    var remainder = this.get("app").options.remainder;
+
+    if (!value) return '';
+
+    if (!_.contains(this.get("app").options.unquotable || [], category) && category != remainder) {
+      value = this.quoteValue(value);
+    }
+
+    if (category != remainder) {
+      category = category + ': ';
+    } else {
+      category = "";
+    }
+    return category + value;
+  },
+  
+  // Wrap categories that have spaces or any kind of quote with opposite matching
+  // quotes to preserve the complex category during serialization.
+  quoteCategory : function(category) {
+    var hasDoubleQuote = (/"/).test(category);
+    var hasSingleQuote = (/'/).test(category);
+    var hasSpace       = (/\s/).test(category);
+    
+    if (hasDoubleQuote && !hasSingleQuote) {
+      return "'" + category + "'";
+    } else if (hasSpace || (hasSingleQuote && !hasDoubleQuote)) {
+      return '"' + category + '"';
+    } else {
+      return category;
+    }
+  },
+  
+  // Wrap values that have quotes in opposite matching quotes. If a value has
+  // both single and double quotes, just use the double quotes.
+  quoteValue : function(value) {
+    var hasDoubleQuote = (/"/).test(value);
+    var hasSingleQuote = (/'/).test(value);
+    
+    if (hasDoubleQuote && !hasSingleQuote) {
+      return "'" + value + "'";
+    } else {
+      return '"' + value + '"';
+    }
+  },
+  
+  // If provided, use a custom label instead of the raw value.
+  label : function() {
+      return this.get('label') || this.get('value');
+  }
+
+});
+
+})();
+(function() {
+
+var $ = jQuery; // Handle namespaced jQuery
+
+// Collection which holds all of the individual facets (category: value).
+// Used for finding and removing specific facets.
+VS.model.SearchQuery = Backbone.Collection.extend({
+
+  // Model holds the category and value of the facet.
+  model : VS.model.SearchFacet,
+  
+  // Turns all of the facets into a single serialized string.
+  serialize : function() {
+    return this.map(function(facet){ return facet.serialize(); }).join(' ');
+  },
+  
+  facets : function() {
+    return this.map(function(facet) {
+      var value = {};
+      value[facet.get('category')] = facet.get('value');
+      return value;
+    });
+  },
+
+  // Find a facet by its category. Multiple facets with the same category
+  // is fine, but only the first is returned.
+  find : function(category) {
+    var facet = this.detect(function(facet) {
+      return facet.get('category').toLowerCase() == category.toLowerCase();
+    });
+    return facet && facet.get('value');
+  },
+
+  // Counts the number of times a specific category is in the search query.
+  count : function(category) {
+    return this.select(function(facet) {
+      return facet.get('category').toLowerCase() == category.toLowerCase();
+    }).length;
+  },
+
+  // Returns an array of extracted values from each facet in a category.
+  values : function(category) {
+    var facets = this.select(function(facet) {
+      return facet.get('category').toLowerCase() == category.toLowerCase();
+    });
+    return _.map(facets, function(facet) { return facet.get('value'); });
+  },
+
+  // Checks all facets for matches of either a category or both category and value.
+  has : function(category, value) {
+    return this.any(function(facet) {
+      var categoryMatched = facet.get('category').toLowerCase() == category.toLowerCase();
+      if (!value) return categoryMatched;
+      return categoryMatched && facet.get('value') == value;
+    });
+  },
+
+  // Used to temporarily hide specific categories and serialize the search query.
+  withoutCategory : function() {
+    var categories = _.map(_.toArray(arguments), function(cat) { return cat.toLowerCase(); });
+    return this.map(function(facet) {
+      if (!_.include(categories, facet.get('category').toLowerCase())) { 
+        return facet.serialize();
+      };
+    }).join(' ');
+  }
+
+});
+
+})();
+(function(){
+window.JST = window.JST || {};
+
+window.JST['search_box'] = _.template('<div class="VS-search">\n  <div class="VS-search-box-wrapper VS-search-box">\n    <div class="VS-icon VS-icon-search"></div>\n    <div class="VS-placeholder"></div>\n    <div class="VS-search-inner"></div>\n    <div class="VS-icon VS-icon-cancel VS-cancel-search-box" title="clear search"></div>\n  </div>\n</div>');
+window.JST['search_facet'] = _.template('<% if (model.has(\'category\')) { %>\n  <div class="category"><%= model.get(\'category\') %>:</div>\n<% } %>\n\n<div class="search_facet_input_container">\n  <input type="text" class="search_facet_input ui-menu VS-interface" value="" />\n</div>\n\n<div class="search_facet_remove VS-icon VS-icon-cancel"></div>');
+window.JST['search_input'] = _.template('<input type="text" class="ui-menu" />');
+})();
+/*!
  * numeral.js
  * version : 1.5.3
  * author : Adam Draper
