@@ -75,4 +75,3 @@
 		$('[am-DataTable]').DataTable();
 	});
 }(jQuery);
-jQuery.noConflict(true);

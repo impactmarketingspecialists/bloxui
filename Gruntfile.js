@@ -82,7 +82,8 @@ module.exports = function(grunt) {
           'bower_components/filter.js/filter.js',
           'bower_components/mustache/mustache.js',
           'bower_components/numeral/numeral.js',
-          'src/js/*.js'
+          'src/js/components.js',
+          'src/js/finalize.js'
         ],
         dest: 'dist/js/<%= pkg.name %>-light.js'
       },
