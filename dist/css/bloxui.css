@@ -7111,7 +7111,8 @@ Animate the stripes
 [am-DataTable][am-Tools~=drag-sort] th td:first-child {
   cursor: default;
 }
-[am-DataTable][am-Tools~=select-all] [am-Selected=true] {
+[am-DataTable][am-Tools~=select-all] [am-Selected=true],
+[am-DataTable][am-Tools~=select-multi] [am-Selected=true] {
   background: #ECECEE;
 }
 table[data-sortable] {
