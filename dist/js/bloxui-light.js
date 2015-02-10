@@ -5798,5 +5798,5 @@ F.streamData = function(time){
 	$(document).ready(function(){
 		$('[am-DataTable]').DataTable();
 	});
-}(jQuery);
+}(jQuery2);
 var jQuery2 = jQuery.noConflict(true);
