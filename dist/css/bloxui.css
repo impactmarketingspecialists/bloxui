@@ -7095,6 +7095,10 @@ Animate the stripes
   cursor: default;
   text-align: left;
 }
+[am-DataTable][am-Tools~=drag-sort] tbody tr.moving {
+  border: 1px solid #ECECEC;
+  background-color: #f3f3f3;
+}
 [am-DataTable][am-Tools~=drag-sort] thead th:first-child,
 [am-DataTable][am-Tools~=drag-sort] tbody td:first-child {
   text-align: center;
@@ -7115,8 +7119,8 @@ Animate the stripes
 [am-DataTable][am-Tools~=select-multi] [am-Selected=true] {
   background: #ECECEE;
 }
-[am-DataTable][am-Tools~=select-all] tbody tr td,
-[am-DataTable][am-Tools~=select-multi] tbody tr td {
+[am-DataTable][am-Tools~=select-all] tbody tr,
+[am-DataTable][am-Tools~=select-multi] tbody tr {
   cursor: pointer;
 }
 table[data-sortable] {
