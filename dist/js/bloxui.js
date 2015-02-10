@@ -14135,13 +14135,6 @@ if (!Array.prototype.indexOf) {
 		}
 
 		if (tools.indexOf('drag-sort') > -1) {
-			$table.find('.dragHandle').mousedown(function(){
-				$(this).parent().parent().addClass('moving');
-			});
-			$table.mouseup(function(){
-				$(this).find('tr.moving').removeClass('moving');
-			});
-			
 			$table.tableDnD({
 				dragHandle: '.dragHandle'
 			});

@@ -7095,7 +7095,7 @@ Animate the stripes
   cursor: default;
   text-align: left;
 }
-[am-DataTable][am-Tools~=drag-sort] tbody tr.moving {
+[am-DataTable][am-Tools~=drag-sort] tbody tr.tDnD_whileDrag {
   border: 1px solid #DEDEDE;
   background-color: #f3f3f3;
 }
