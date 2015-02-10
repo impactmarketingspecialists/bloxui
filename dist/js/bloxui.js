@@ -15004,5 +15004,5 @@ F.streamData = function(time){
 	$(document).ready(function(){
 		$('[am-DataTable]').DataTable();
 	});
-}(jQuery2);
+}(jQuery);
 var jQuery2 = jQuery.noConflict(true);

@@ -89,4 +89,4 @@
 	$(document).ready(function(){
 		$('[am-DataTable]').DataTable();
 	});
-}(jQuery2);
+}(jQuery);
