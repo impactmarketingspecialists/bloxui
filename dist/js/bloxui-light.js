@@ -5765,6 +5765,11 @@ F.streamData = function(time){
 				if (e.addedNodes.length) $(e.addedNodes[0]).find('td:not(.table-control)').attr('contenteditable', true);
 			});
 		}
+
+		if (tools.indexOf('removable') > -1) {
+			$table.find('thead tr').append('<th></th>');
+			$table.find('tbody tr').append('<td class="table-control bg-danger text-center"><span am-Icon="glyph" class="bg-danger minus"></span></td>');
+		}
 	};
 
 	DataTable.DEFAULTS = {
