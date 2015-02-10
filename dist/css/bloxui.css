@@ -7115,6 +7115,10 @@ Animate the stripes
 [am-DataTable][am-Tools~=select-multi] [am-Selected=true] {
   background: #ECECEE;
 }
+[am-DataTable][am-Tools~=select-all] tbody tr td,
+[am-DataTable][am-Tools~=select-multi] tbody tr td {
+  cursor: pointer;
+}
 table[data-sortable] {
   /*border-collapse: collapse;*/
   /*border-spacing: 0;*/

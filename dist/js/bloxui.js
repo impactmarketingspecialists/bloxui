@@ -14093,21 +14093,18 @@ if (!Array.prototype.indexOf) {
 
 +function($){
 
-	var _DataTables = [];
+	'use strict';
 
-	$.fn.DataTable = function(options) {
+	var DataTable = function(element, options) {
 
-		var $table = this;
-		var settings = $.extend({
-			tools: [],
-			sortable: false
-		}, options);
+		var $table = this.$table = $(element);
+		var tools = [];
 
-		if (this.attr('am-Tools')) {
-			$.merge(settings.tools, this.attr('am-Tools').split());
+		if ($table.attr('am-Tools')) {
+			tools = $table.attr('am-Tools').split(' ');
 		}
 
-		if (settings.tools.indexOf('select-all') > -1 || settings.tools.indexOf('select-multi') > -1) {
+		if (tools.indexOf('select-all') > -1 || tools.indexOf('select-multi') > -1) {
 
 			var _select = function(e){
 				var em = (e.target.nodeName == 'INPUT') ? $(e.target).parent().parent() : $(e.target).parent();
@@ -14115,30 +14112,29 @@ if (!Array.prototype.indexOf) {
 				em.attr('am-Selected', (val === 'true')? 'false':'true');
 				em.find('td:first-child input[type=checkbox]').prop('checked',(val === 'true')? false:true);
 				
-				if (settings.tools.indexOf('select-all') > -1) {
+				if (tools.indexOf('select-all') > -1) {
 					if (val === 'true') $table.find('thead tr th:first-child input[type=checkbox]').prop('checked',false);
 				}
 			};
 
 			var _selectAll = function(e){
 				var em = $(e.target);
-				$table.find('tbody tr').attr('am-Selected',em.prop('checked').toString()).
-				find('td:first-child input[type=checkbox]').prop('checked',em.prop('checked'))
+				$table.find('tbody tr').attr('am-Selected',em.prop('checked').toString());
+				$table.find('tbody td:first-child input[type=checkbox]').prop('checked',em.prop('checked'))
 			};
 
-			this.selected = function(){
+			$table.selected = function(){
 				return $table.find('tbody tr[am-Selected=true]');
 			}
 
 			$table.on('click','tbody tr td',_select);
 			
-			if (settings.tools.indexOf('select-all') > -1) {
+			if (tools.indexOf('select-all') > -1) {
 				$table.find('thead tr th:first-child input[type=checkbox]').click(_selectAll);
 			}
 		}
 
-		if (settings.tools.indexOf('drag-sort') > -1) {
-
+		if (tools.indexOf('drag-sort') > -1) {
 			$table.tableDnD({
 				dragHandle: '.dragHandle'
 			});
@@ -14147,25 +14143,38 @@ if (!Array.prototype.indexOf) {
 			});
 		}
 
-		if (settings.tools.indexOf('edit-row') > -1 || settings.tools.indexOf('edit-cell') > -1) {
-
-			if (settings.tools.indexOf('edit-row') > -1) {
-				this.editRow = function(row) {
-					$('td:not(.table-control)',row).attr('contenteditable', true);
-				};
-			}
-
-			if (settings.tools.indexOf('edit-cell') > -1) {
-				$table.observe('childlist', 'tbody tr', function(e){
-					if (e.addedNodes.length) $(e.addedNodes[0]).find('td:not(.table-control)').attr('contenteditable', true);
-				});
-			}
+		if (tools.indexOf('edit-row') > -1) {
+			$table.find('td:not(.table-control)').attr('contenteditable', true);
+			$table.observe('childlist', 'tbody tr', function(e){
+				if (e.addedNodes.length) $(e.addedNodes[0]).find('td:not(.table-control)').attr('contenteditable', true);
+			});
 		}
-		return this;
 	};
 
+	DataTable.DEFAULTS = {
+		tools: [],
+		sortable: false
+	};
+
+	// MODAL PLUGIN DEFINITION
+	// =======================
+
+	function Plugin(option, _relatedTarget) {
+		return this.each(function () {
+			var $this   = $(this)
+			var data    = $this.data('bx.DataTable')
+			var options = $.extend({}, DataTable.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+			if (!data) $this.data('bx.DataTable', (data = new DataTable(this, options)))
+			// if (typeof option == 'string') data[option](_relatedTarget)
+			// else if (options.show) data.show(_relatedTarget)
+		});
+	};
+
+	$.fn.DataTable = Plugin
+	$.fn.DataTable.Constructor = DataTable
+
 	$(document).ready(function(){
-		$('[am-DataTable][am-Tools~=drag-sort]').tableDnD();
 		$('[am-DataTable]').DataTable();
 	});
 }(jQuery);
