@@ -14130,8 +14130,9 @@ if (!Array.prototype.indexOf) {
 				return $table.find('tbody tr[am-Selected=true]');
 			}
 
+			$table.on('click','tbody tr td',_select);
+			
 			if (settings.tools.indexOf('select-all') > -1) {
-				$table.on('click','tbody tr td',_select);
 				$table.find('thead tr th:first-child input[type=checkbox]').click(_selectAll);
 			}
 		}
