@@ -5768,7 +5768,10 @@ F.streamData = function(time){
 
 		if (tools.indexOf('removable') > -1) {
 			$table.find('thead tr').append('<th></th>');
-			$table.find('tbody tr').append('<td class="table-control bg-danger text-center"><span am-Icon="glyph" class="bg-danger minus"></span></td>');
+			$table.find('tbody tr').append('<td class="table-control bg-danger text-center"><span am-Icon="glyph" class="remove"></span></td>');
+			$table.observe('childlist', 'tbody tr', function(e){
+				if (e.addedNodes.length) $(e.addedNodes[0]).append('<td class="table-control bg-danger text-center"><span am-Icon="glyph" class="remove"></span></td>');
+			});
 		}
 	};
 
