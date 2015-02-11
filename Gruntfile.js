@@ -128,21 +128,21 @@ module.exports = function(grunt) {
          files: ['src/**/*.js'],
          tasks: ['concat:js','concat:jsfull','uglify'],
          options: {
-          livereload: false
+          livereload: true
          }
       },
       css: {
          files: ['src/**/*.css','src/**/*.less'],
          tasks: ['concat:css','less','cssmin'],
          options: {
-          livereload: false
+          livereload: true
          }
       },
       html: {
          files: ['src/**/*.html','src/**/*.htm'],
          tasks: ['copy:dist','copy:html'],
          options: {
-          livereload: false
+          livereload: true
          }
       }
     }

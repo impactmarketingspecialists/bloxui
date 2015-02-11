@@ -273,11 +273,17 @@ Animate the stripes
 	cursor:pointer;
 }
 
-[am-DataTable] .table-control .remove {
+[am-DataTable][am-Tools~=removable] td.table-control.remove {
+	text-align: center;
 	cursor: pointer;
+	background-color: #f2dede;
 }
 
-[am-DataTable] .table-control .remove:hover {
+[am-DataTable][am-Tools~=removable] td.table-control.remove:hover {
+	background-color:#ED6C6C;
+}
+
+[am-DataTable][am-Tools~=removable] td.table-control.remove:hover .remove {
 	color: #333;
 }
 

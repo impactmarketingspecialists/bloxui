@@ -7123,6 +7123,17 @@ Animate the stripes
 [am-DataTable][am-Tools~=select-multi] tbody tr {
   cursor: pointer;
 }
+[am-DataTable][am-Tools~=removable] td.table-control.remove {
+  text-align: center;
+  background-color: #f2dede;
+  cursor: pointer;
+}
+[am-DataTable][am-Tools~=removable] td.table-control.remove:hover {
+  background-color: #ED6C6C;
+}
+[am-DataTable][am-Tools~=removable] td.table-control.remove:hover .remove {
+  color: #333;
+}
 table[data-sortable] {
   /*border-collapse: collapse;*/
   /*border-spacing: 0;*/
