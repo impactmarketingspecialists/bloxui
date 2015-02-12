@@ -62,7 +62,11 @@
 				$(this).parent().parent().remove();
 			});
 			$table.observe('childlist', 'tbody tr td.table-control .remove', function(e){
-				if (e.addedNodes.length) $(e.addedNodes[0]);
+				if (e.addedNodes.length) {
+					$(e.addedNodes[0]).find('td.table-control .remove').click(function(){
+						$(this).parent().parent().remove();
+					});
+				}
 			});
 		}
 	};
