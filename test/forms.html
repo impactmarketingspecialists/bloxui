@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../dist/css/bloxui.css">
+</head>
+<body>
+
+	<div class="container">
+		<h1>Search Fields</h1>
+		<pre>Basic search fields</pre>
+		<h2>Default:</h2>
+
+		<div am-Form="inline" class="search form-inline">
+			<div class="form-group">
+				<input type="search" class="form-control col-xs-8" placeholder="Search"/><div am-Button="default search"><span am-Icon="glyph" class="search"></span></div>
+			</div>
+		</div>
+
+		<div am-Form="inline" class="search form-inline">
+			<div class="form-group">
+				<input type="search" class="form-control col-xs-8" placeholder="Search"/><div am-Button="default search"><span am-Icon="glyph" class="map-marker"></span></div>
+			</div>
+		</div>
+
+		<h2>Right-aligned with other elements in a NavBar</h2>
+		<div am-Navbar="page" am-clear>
+			<div am-Position="right" class="navigation">
+				<div am-Form="inline" class="search form-inline pull-right">
+					<div class="form-group">
+						<input type="search" class="form-control col-xs-8" placeholder="Search"/><div am-Button="default search"><span am-Icon="glyph" class="search"></span></div>
+					</div>
+					<!-- <div am-Button="help"><span am-Icon="glyph extra-large" class="question-sign"></span></div> -->
+				</div>
+			</div>
+			<div>Additional </div>
+		</div>
+
+	</div>
+
+
+	<script src="../dist/js/bloxui.js" type="text/javascript"></script>
+</body>
+</html>
