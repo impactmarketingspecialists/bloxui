@@ -258,7 +258,8 @@ th {
   src: url('fonts/glyphicons-halflings-regular.eot');
   src: url('fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('fonts/glyphicons-halflings-regular.woff') format('woff'), url('fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }
-.glyphicon {
+.glyphicon,
+[am-Icon~=glyph] {
   position: relative;
   top: 1px;
   display: inline-block;
@@ -6968,21 +6969,6 @@ button.close {
   -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1);
 }
-@font-face {
-  font-family: 'Glyphicons Halflings';
-  src: url('fonts/glyphicons-halflings-regular.eot');
-  src: url('fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('fonts/glyphicons-halflings-regular.woff') format('woff'), url('fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
-}
-[am-Icon~=glyph] {
-  position: relative;
-  display: inline-block;
-  font-family: 'Glyphicons Halflings';
-  font-style: normal;
-  font-weight: normal;
-  margin: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 [am-Icon~=glyph][am-Icon~=nav-item] {
   top: 5px;
 }
@@ -7601,6 +7587,180 @@ button.close {
 }
 [am-Icon~=glyph].tree-deciduous:before {
   content: "\e200";
+}
+[am-Icon~=glyph].cd:before {
+  content: "\e201";
+}
+[am-Icon~=glyph].save-file:before {
+  content: "\e202";
+}
+[am-Icon~=glyph].open-file:before {
+  content: "\e203";
+}
+[am-Icon~=glyph].level-up:before {
+  content: "\e204";
+}
+[am-Icon~=glyph].copy:before {
+  content: "\e205";
+}
+[am-Icon~=glyph].paste:before {
+  content: "\e206";
+}
+[am-Icon~=glyph].alert:before {
+  content: "\e209";
+}
+[am-Icon~=glyph].equalizer:before {
+  content: "\e210";
+}
+[am-Icon~=glyph].king:before {
+  content: "\e211";
+}
+[am-Icon~=glyph].queen:before {
+  content: "\e212";
+}
+[am-Icon~=glyph].pawn:before {
+  content: "\e213";
+}
+[am-Icon~=glyph].bishop:before {
+  content: "\e214";
+}
+[am-Icon~=glyph].knight:before {
+  content: "\e215";
+}
+[am-Icon~=glyph].baby-formula:before {
+  content: "\e216";
+}
+[am-Icon~=glyph].tent:before {
+  content: "\26fa";
+}
+[am-Icon~=glyph].blackboard:before {
+  content: "\e218";
+}
+[am-Icon~=glyph].bed:before {
+  content: "\e219";
+}
+[am-Icon~=glyph].apple:before {
+  content: "\f8ff";
+}
+[am-Icon~=glyph].erase:before {
+  content: "\e221";
+}
+[am-Icon~=glyph].hourglass:before {
+  content: "\231b";
+}
+[am-Icon~=glyph].lamp:before {
+  content: "\e223";
+}
+[am-Icon~=glyph].duplicate:before {
+  content: "\e224";
+}
+[am-Icon~=glyph].piggy-bank:before {
+  content: "\e225";
+}
+[am-Icon~=glyph].scissors:before {
+  content: "\e226";
+}
+[am-Icon~=glyph].bitcoin:before {
+  content: "\e227";
+}
+[am-Icon~=glyph].yen:before {
+  content: "\00a5";
+}
+[am-Icon~=glyph].ruble:before {
+  content: "\20bd";
+}
+[am-Icon~=glyph].scale:before {
+  content: "\e230";
+}
+[am-Icon~=glyph].ice-lolly:before {
+  content: "\e231";
+}
+[am-Icon~=glyph].ice-lolly-tasted:before {
+  content: "\e232";
+}
+[am-Icon~=glyph].education:before {
+  content: "\e233";
+}
+[am-Icon~=glyph].option-horizontal:before {
+  content: "\e234";
+}
+[am-Icon~=glyph].option-vertical:before {
+  content: "\e235";
+}
+[am-Icon~=glyph].menu-hamburger:before {
+  content: "\e236";
+}
+[am-Icon~=glyph].modal-window:before {
+  content: "\e237";
+}
+[am-Icon~=glyph].oil:before {
+  content: "\e238";
+}
+[am-Icon~=glyph].grain:before {
+  content: "\e239";
+}
+[am-Icon~=glyph].sunglasses:before {
+  content: "\e240";
+}
+[am-Icon~=glyph].text-size:before {
+  content: "\e241";
+}
+[am-Icon~=glyph].text-color:before {
+  content: "\e242";
+}
+[am-Icon~=glyph].text-background:before {
+  content: "\e243";
+}
+[am-Icon~=glyph].object-align-top:before {
+  content: "\e244";
+}
+[am-Icon~=glyph].object-align-bottom:before {
+  content: "\e245";
+}
+[am-Icon~=glyph].object-align-horizontal:before {
+  content: "\e246";
+}
+[am-Icon~=glyph].object-align-left:before {
+  content: "\e247";
+}
+[am-Icon~=glyph].object-align-vertical:before {
+  content: "\e248";
+}
+[am-Icon~=glyph].object-align-right:before {
+  content: "\e249";
+}
+[am-Icon~=glyph].triangle-right:before {
+  content: "\e250";
+}
+[am-Icon~=glyph].triangle-left:before {
+  content: "\e251";
+}
+[am-Icon~=glyph].triangle-bottom:before {
+  content: "\e252";
+}
+[am-Icon~=glyph].triangle-top:before {
+  content: "\e253";
+}
+[am-Icon~=glyph].console:before {
+  content: "\e254";
+}
+[am-Icon~=glyph].superscript:before {
+  content: "\e255";
+}
+[am-Icon~=glyph].subscript:before {
+  content: "\e256";
+}
+[am-Icon~=glyph].menu-left:before {
+  content: "\e257";
+}
+[am-Icon~=glyph].menu-right:before {
+  content: "\e258";
+}
+[am-Icon~=glyph].menu-down:before {
+  content: "\e259";
+}
+[am-Icon~=glyph].menu-up:before {
+  content: "\e260";
 }
 [am-Button~=blue] {
   color: #fff;
