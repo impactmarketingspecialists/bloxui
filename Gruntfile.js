@@ -23,12 +23,12 @@ module.exports = function(grunt) {
         options: {
           strictImports: true,
           strictMath: true,
-          sourceMap: true,
-          outputSourceFiles: true,
+          sourceMap: false,
+          outputSourceFiles: false,
           sourceMapURL: '<%= pkg.name %>.css.map',
           sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
         },
-        files: { "build/css/<%= pkg.name %>.css": ['src/css/<%= pkg.name %>.less'] }
+        files: { "dist/css/<%= pkg.name %>.css": ['src/css/<%= pkg.name %>.less'] }
       }
     },
     concat: {
@@ -47,12 +47,12 @@ module.exports = function(grunt) {
           'src/js/components.js',
           'src/js/finalize.js'
         ],
-        dest: 'dist/js/<%= pkg.name %>-light.js'
+        dest: 'dist/js/<%= pkg.name %>.light.js'
       },
       jsfull: {
         src: [
           'bower_components/jquery/dist/jquery.js',
-          'dist/js/<%= pkg.name %>-light.js'
+          'dist/js/<%= pkg.name %>.light.js'
         ],
         dest: 'dist/js/<%= pkg.name %>.js'
       }
@@ -60,12 +60,14 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
-        beautify: false
+        beautify: false,
+        sourceMap: true,
+        sourceMapName: 'dist/js/<%= pkg.name %>.min.js.map'
       },
       build: {
         files: {
-            'dist/js/<%= pkg.name %>-min.js': ['dist/js/<%= pkg.name %>.js'],
-            'dist/js/<%= pkg.name %>-light-min.js': ['dist/js/<%= pkg.name %>-light.js']
+            'dist/js/<%= pkg.name %>.min.js': ['dist/js/<%= pkg.name %>.js'],
+            'dist/js/<%= pkg.name %>.light.min.js': ['dist/js/<%= pkg.name %>.light.js']
         }
       }
     },
