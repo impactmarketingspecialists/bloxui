@@ -17,14 +17,14 @@ module.exports = function(grunt) {
           dest: 'build/bootstrap/less'
         }]
       },
-      boostrapOverrides: {
-        files: [{
-          expand: true,
-          cwd: 'src/css/bootstrap',
-          src: ['./**'],
-          dest: 'build/bootstrap/less'
-        }]
-      },
+      // boostrapOverrides: {
+      //   files: [{
+      //     expand: true,
+      //     cwd: 'src/css/bootstrap',
+      //     src: ['./**'],
+      //     dest: 'build/bootstrap/less'
+      //   }]
+      // },
       fonts: {
         files: [{
           expand: true,
