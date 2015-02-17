@@ -144,6 +144,13 @@ module.exports = function(grunt) {
          options: {
           livereload: true
          }
+      },
+      test: {
+         files: ['test/**/*.html','test/**/*.htm'],
+         tasks: [],
+         options: {
+          livereload: true
+         }
       }
     }
   });
