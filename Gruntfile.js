@@ -31,6 +31,18 @@ module.exports = function(grunt) {
         files: { "dist/css/<%= pkg.name %>.css": ['src/css/<%= pkg.name %>.less'] }
       }
     },
+    cssmin: {
+      options: {
+        banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
+        sourceMap: true,
+        rebase: false
+      },
+      combine: {
+        files: {
+          "dist/css/<%= pkg.name %>.min.css": ['dist/css/<%= pkg.name %>.css']
+        }
+      }
+    },
     concat: {
       options: {
         separator: "\n"
@@ -68,17 +80,6 @@ module.exports = function(grunt) {
         files: {
             'dist/js/<%= pkg.name %>.min.js': ['dist/js/<%= pkg.name %>.js'],
             'dist/js/<%= pkg.name %>.light.min.js': ['dist/js/<%= pkg.name %>.light.js']
-        }
-      }
-    },
-    cssmin: {
-      options: {
-        banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
-        sourceMap: true
-      },
-      combine: {
-        files: {
-          "dist/css/<%= pkg.name %>.min.css": ['dist/css/<%= pkg.name %>.css']
         }
       }
     },
