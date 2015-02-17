@@ -1,11 +1,15 @@
+@bootstrap: "bower_components/bootstrap/less";
 
-@import (reference) "../../bower_components/bootstrap/less/bootstrap.less";
-@import (reference) "../../bower_components/bootstrap/less/theme.less";
+@import "@{bootstrap}/bootstrap.less";
+@import "@{bootstrap}/theme.less";
 
 @import "variables.less";
-@import "bootstrap/glyphicons.less";
+@import "glyphicons.less";
 
+// Core CSS
 @import "buttons.less";
-@import "components.less";
 @import "forms.less";
 @import "layout.less";
+
+// Components
+@import "components.less";

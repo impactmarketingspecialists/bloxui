@@ -17,27 +17,27 @@
   "private": false,
   "main": [
     "dist/css/bloxui.css",
-    "dist/js/bloxui.js",
-    "dist/fonts/glyphicons-halflings-regular.eot",
-    "dist/fonts/glyphicons-halflings-regular.svg",
-    "dist/fonts/glyphicons-halflings-regular.ttf",
-    "dist/fonts/glyphicons-halflings-regular.woff"
+    "dist/css/fonts/glyphicons-halflings-regular.eot",
+    "dist/css/fonts/glyphicons-halflings-regular.svg",
+    "dist/css/fonts/glyphicons-halflings-regular.ttf",
+    "dist/css/fonts/glyphicons-halflings-regular.woff",
+    "dist/js/bloxui.js"
   ],
   "scripts": {
-    "test":"grun test"
+    "test":"grunt test"
   },
   "dependencies": {},
   "devDependencies": {
     "bower": "*",
     "grunt": "^0.4.4",
     "grunt-contrib-clean": "*",
-    "grunt-contrib-concat": "^0.3.0",
-    "grunt-contrib-copy": "^0.5.0",
-    "grunt-contrib-cssmin": "^0.9.0",
-    "grunt-contrib-less": "^0.12.0",
-    "grunt-contrib-uglify": "^0.4.0",
-    "grunt-contrib-watch": "^0.6.0",
-    "grunt-exec": "^0.4.5",
-    "grunt-ftp-push": "^0.2.4"
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-cssmin": "*",
+    "grunt-contrib-less": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-exec": "*",
+    "grunt-ftp-push": "*"
   }
 }
