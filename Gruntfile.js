@@ -9,22 +9,6 @@ module.exports = function(grunt) {
       ]
     },
     copy: {
-      boostrap: {
-        files: [{
-          expand: true,
-          cwd: 'bower_components/bootstrap/less',
-          src: ['./**'],
-          dest: 'build/bootstrap/less'
-        }]
-      },
-      // boostrapOverrides: {
-      //   files: [{
-      //     expand: true,
-      //     cwd: 'src/css/bootstrap',
-      //     src: ['./**'],
-      //     dest: 'build/bootstrap/less'
-      //   }]
-      // },
       fonts: {
         files: [{
           expand: true,
@@ -35,38 +19,28 @@ module.exports = function(grunt) {
       }
     },
     less: {
-      compileCore: {
-        options: {
-          strictMath: true,
-          sourceMap: true,
-          outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>-bootstrap.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-bootstrap.css.map'
-        },
-        src: 'build/bootstrap/less/bootstrap.less',
-        dest: 'build/css/<%= pkg.name %>-bootstrap.css'
-      },
-      compileTheme: {
-        options: {
-          strictMath: true,
-          sourceMap: true,
-          outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>-bootstrap-theme.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-bootstrap-theme.css.map'
-        },
-        src: 'build/bootstrap/less/theme.less',
-        dest: 'build/css/<%= pkg.name %>-bootstrap-theme.css'
-      },
       compileBlox: {
         options: {
           strictImports: true,
           strictMath: true,
-          sourceMap: true,
-          outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>-core.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-core.css.map'
+          sourceMap: false,
+          outputSourceFiles: false,
+          sourceMapURL: '<%= pkg.name %>.css.map',
+          sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
         },
-        files: { "build/css/<%= pkg.name %>-core.css": ['src/css/<%= pkg.name %>.less'] }
+        files: { "dist/css/<%= pkg.name %>.css": ['src/css/<%= pkg.name %>.less'] }
+      }
+    },
+    cssmin: {
+      options: {
+        banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
+        sourceMap: true,
+        rebase: false
+      },
+      combine: {
+        files: {
+          "dist/css/<%= pkg.name %>.min.css": ['dist/css/<%= pkg.name %>.css']
+        }
       }
     },
     concat: {
@@ -85,41 +59,27 @@ module.exports = function(grunt) {
           'src/js/components.js',
           'src/js/finalize.js'
         ],
-        dest: 'dist/js/<%= pkg.name %>-light.js'
+        dest: 'dist/js/<%= pkg.name %>.light.js'
       },
       jsfull: {
         src: [
           'bower_components/jquery/dist/jquery.js',
-          'dist/js/<%= pkg.name %>-light.js'
+          'dist/js/<%= pkg.name %>.light.js'
         ],
         dest: 'dist/js/<%= pkg.name %>.js'
-      },
-      css: {
-        src: [
-          'build/css/*.css', '!build/css/*.css.map', '!build/css/<%= pkg.name %>.css'
-        ],
-        dest: 'dist/css/<%= pkg.name %>.css'
       }
     },
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
-        beautify: false
+        beautify: false,
+        sourceMap: true,
+        sourceMapName: 'dist/js/<%= pkg.name %>.min.js.map'
       },
       build: {
         files: {
-            'dist/js/<%= pkg.name %>-min.js': ['dist/js/<%= pkg.name %>.js'],
-            'dist/js/<%= pkg.name %>-light-min.js': ['dist/js/<%= pkg.name %>-light.js']
-        }
-      }
-    },
-    cssmin: {
-      options: {
-        banner: '/*! <%= pkg.name %> v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n'
-      },
-      combine: {
-        files: {
-          "dist/css/<%= pkg.name %>-min.css": ['build/css/*.css', '!build/css/*.css.map', '!build/css/<%= pkg.name %>.css']
+            'dist/js/<%= pkg.name %>.min.js': ['dist/js/<%= pkg.name %>.js'],
+            'dist/js/<%= pkg.name %>.light.min.js': ['dist/js/<%= pkg.name %>.light.js']
         }
       }
     },
@@ -133,7 +93,7 @@ module.exports = function(grunt) {
       },
       css: {
          files: ['src/**/*.css','src/**/*.less'],
-         tasks: ['concat:css','less','cssmin'],
+         tasks: ['less','cssmin'],
          options: {
           livereload: true
          }
