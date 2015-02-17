@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../dist/css/bloxui.css">
+	<style type="text/css">
+ol, ul {
+	margin-top: 0;
+	margin-bottom: 10px;
+}
+.bs-glyphicons-list {
+	padding-left: 0;
+	list-style: none;
+}
+.bs-glyphicons li {
+	width: 12.5%;
+	font-size: 12px;
+	float: left;
+	height: 115px;
+	padding: 10px;
+	line-height: 1.4;
+	text-align: center;
+	background-color: #f9f9f9;
+	border: 1px solid #fff;
+}
+.bs-glyphicons li:hover {
+	color:white;
+	background-color: gray;
+}
+.bs-glyphicons [am-Icon="glyph"] {
+	margin-top: 5px;
+	margin-bottom: 10px;
+	font-size: 24px;
+}
+[am-Icon="glyph"] {
+	position: relative;
+	top: 1px;
+	display: inline-block;
+	font-family: 'Glyphicons Halflings';
+	font-style: normal;
+	font-weight: 400;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+.bs-glyphicons .glyphicon-class {
+	display: block;
+	text-align: center;
+	word-wrap: break-word;
+}
+/* icons update */
+[am-Icon~=glyph].cd { &:before { content: "\e201"; } }
+[am-Icon~=glyph].save-file { &:before { content: "\e202"; } }
+[am-Icon~=glyph].open-file { &:before { content: "\e203"; } }
+[am-Icon~=glyph].level-up { &:before { content: "\e204"; } }
+[am-Icon~=glyph].copy { &:before { content: "\e205"; } }
+[am-Icon~=glyph].paste { &:before { content: "\e206"; } }
+[am-Icon~=glyph].alert { &:before { content: "\e207"; } }
+[am-Icon~=glyph].equalizer { &:before { content: "\e208"; } }
+[am-Icon~=glyph].king { &:before { content: "\e209"; } }
+[am-Icon~=glyph].queen { &:before { content: "\e210"; } }
+[am-Icon~=glyph].pawn { &:before { content: "\e211"; } }
+[am-Icon~=glyph].bishop { &:before { content: "\e212"; } }
+[am-Icon~=glyph].knight { &:before { content: "\e213"; } }
+[am-Icon~=glyph].baby-formula { &:before { content: "\e214"; } }
+[am-Icon~=glyph].tent { &:before { content: "\e215"; } }
+[am-Icon~=glyph].blackboard { &:before { content: "\e216"; } }
+[am-Icon~=glyph].bed { &:before { content: "\e217"; } }
+[am-Icon~=glyph].apple { &:before { content: "\e218"; } }
+[am-Icon~=glyph].erase { &:before { content: "\e219"; } }
+[am-Icon~=glyph].hourglass { &:before { content: "\e220"; } }
+[am-Icon~=glyph].lamp { &:before { content: "\e221"; } }
+[am-Icon~=glyph].duplicate { &:before { content: "\e222"; } }
+[am-Icon~=glyph].piggy-bank { &:before { content: "\e223"; } }
+[am-Icon~=glyph].scissors { &:before { content: "\e224"; } }
+[am-Icon~=glyph].bitcoin { &:before { content: "\e225"; } }
+[am-Icon~=glyph].yen { &:before { content: "\e226"; } }
+[am-Icon~=glyph].ruble { &:before { content: "\e227"; } }
+[am-Icon~=glyph].scale { &:before { content: "\e228"; } }
+[am-Icon~=glyph].ice-lolly { &:before { content: "\e229"; } }
+[am-Icon~=glyph].ice-lolly-tasted { &:before { content: "\e230"; } }
+[am-Icon~=glyph].education { &:before { content: "\e231"; } }
+[am-Icon~=glyph].option-horizontal { &:before { content: "\e232"; } }
+[am-Icon~=glyph].option-vertical { &:before { content: "\e233"; } }
+[am-Icon~=glyph].menu-hamburger { &:before { content: "\e234"; } }
+[am-Icon~=glyph].modal-window { &:before { content: "\e235"; } }
+[am-Icon~=glyph].oil { &:before { content: "\e236"; } }
+[am-Icon~=glyph].grain { &:before { content: "\e237"; } }
+[am-Icon~=glyph].sunglasses { &:before { content: "\e238"; } }
+[am-Icon~=glyph].text-size { &:before { content: "\e239"; } }
+[am-Icon~=glyph].text-color { &:before { content: "\e240"; } }
+[am-Icon~=glyph].text-background { &:before { content: "\e241"; } }
+[am-Icon~=glyph].object-align-top { &:before { content: "\e242"; } }
+[am-Icon~=glyph].object-align-bottom { &:before { content: "\e243"; } }
+[am-Icon~=glyph].object-align-horizontal { &:before { content: "\e244"; } }
+[am-Icon~=glyph].object-align-left { &:before { content: "\e245"; } }
+[am-Icon~=glyph].object-align-vertical { &:before { content: "\e246"; } }
+[am-Icon~=glyph].object-align-right { &:before { content: "\e247"; } }
+[am-Icon~=glyph].triangle-right { &:before { content: "\e248"; } }
+[am-Icon~=glyph].triangle-left { &:before { content: "\e249"; } }
+[am-Icon~=glyph].triangle-bottom { &:before { content: "\e250"; } }
+[am-Icon~=glyph].triangle-top { &:before { content: "\e251"; } }
+[am-Icon~=glyph].console { &:before { content: "\e252"; } }
+[am-Icon~=glyph].superscript { &:before { content: "\e253"; } }
+[am-Icon~=glyph].subscript { &:before { content: "\e254"; } }
+[am-Icon~=glyph].menu-left { &:before { content: "\e255"; } }
+[am-Icon~=glyph].menu-right { &:before { content: "\e256"; } }
+[am-Icon~=glyph].menu-down { &:before { content: "\e257"; } }
+[am-Icon~=glyph].menu-up { &:before { content: "\e258"; } }
+
+	</style>
+</head>
+<body>
+
+	<div class="container">
+		<h1>Icons</h1>
+		<pre>Basic icons</pre>
+
+		<h2>Example</h2>
+
+		<button am-Button="default"><span am-Icon="glyph" class="star"></span> Star</button>
+
+		<h2>Icons</h2>
+
+		<div class="bs-glyphicons">
+		    <ul class="bs-glyphicons-list">
+
+		        <li>
+		          <span am-Icon="glyph" class="asterisk"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].asterisk</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="plus"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].plus</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="euro"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].euro</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="eur"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].eur</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="minus"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].minus</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="cloud"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].cloud</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="envelope"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].envelope</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="pencil"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].pencil</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="glass"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].glass</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="music"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].music</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="search"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].search</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="heart"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].heart</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="star"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].star</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="star-empty"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].star-empty</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="user"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].user</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="film"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].film</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="th-large"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].th-large</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="th"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].th</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="th-list"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].th-list</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="ok"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].ok</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="remove"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].remove</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="zoom-in"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].zoom-in</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="zoom-out"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].zoom-out</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="off"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].off</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="signal"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].signal</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="cog"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].cog</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="trash"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].trash</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="home"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].home</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="file"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].file</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="time"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].time</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="road"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].road</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="download-alt"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].download-alt</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="download"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].download</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="upload"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].upload</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="inbox"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].inbox</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="play-circle"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].play-circle</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="repeat"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].repeat</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="refresh"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].refresh</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="list-alt"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].list-alt</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="lock"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].lock</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="flag"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].flag</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="headphones"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].headphones</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="volume-off"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].volume-off</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="volume-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].volume-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="volume-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].volume-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="qrcode"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].qrcode</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="barcode"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].barcode</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tag"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tag</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tags"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tags</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="book"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].book</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="bookmark"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].bookmark</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="print"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].print</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="camera"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].camera</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="font"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].font</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="bold"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].bold</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="italic"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].italic</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="text-height"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].text-height</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="text-width"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].text-width</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="align-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].align-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="align-center"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].align-center</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="align-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].align-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="align-justify"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].align-justify</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="list"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].list</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="indent-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].indent-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="indent-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].indent-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="facetime-video"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].facetime-video</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="picture"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].picture</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="map-marker"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].map-marker</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="adjust"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].adjust</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tint"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tint</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="edit"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].edit</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="share"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].share</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="check"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].check</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="move"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].move</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="step-backward"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].step-backward</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="fast-backward"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].fast-backward</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="backward"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].backward</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="play"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].play</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="pause"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].pause</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="stop"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].stop</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="forward"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].forward</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="fast-forward"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].fast-forward</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="step-forward"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].step-forward</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="eject"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].eject</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="chevron-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].chevron-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="chevron-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].chevron-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="plus-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].plus-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="minus-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].minus-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="remove-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].remove-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="ok-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].ok-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="question-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].question-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="info-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].info-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="screenshot"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].screenshot</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="remove-circle"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].remove-circle</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="ok-circle"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].ok-circle</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="ban-circle"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].ban-circle</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="arrow-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].arrow-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="arrow-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].arrow-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="arrow-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].arrow-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="arrow-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].arrow-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="share-alt"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].share-alt</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="resize-full"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].resize-full</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="resize-small"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].resize-small</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="exclamation-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].exclamation-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="gift"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].gift</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="leaf"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].leaf</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="fire"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].fire</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="eye-open"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].eye-open</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="eye-close"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].eye-close</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="warning-sign"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].warning-sign</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="plane"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].plane</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="calendar"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].calendar</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="random"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].random</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="comment"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].comment</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="magnet"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].magnet</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="chevron-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].chevron-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="chevron-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].chevron-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="retweet"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].retweet</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="shopping-cart"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].shopping-cart</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="folder-close"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].folder-close</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="folder-open"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].folder-open</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="resize-vertical"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].resize-vertical</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="resize-horizontal"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].resize-horizontal</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="hdd"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].hdd</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="bullhorn"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].bullhorn</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="bell"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].bell</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="certificate"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].certificate</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="thumbs-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].thumbs-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="thumbs-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].thumbs-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="hand-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].hand-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="hand-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].hand-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="hand-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].hand-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="hand-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].hand-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="circle-arrow-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].circle-arrow-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="circle-arrow-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].circle-arrow-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="circle-arrow-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].circle-arrow-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="circle-arrow-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].circle-arrow-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="globe"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].globe</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="wrench"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].wrench</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tasks"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tasks</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="filter"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].filter</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="briefcase"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].briefcase</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="fullscreen"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].fullscreen</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="dashboard"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].dashboard</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="paperclip"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].paperclip</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="heart-empty"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].heart-empty</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="link"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].link</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="phone"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].phone</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="pushpin"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].pushpin</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="usd"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].usd</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="gbp"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].gbp</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sort"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sort</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sort-by-alphabet"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sort-by-alphabet</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sort-by-alphabet-alt"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sort-by-alphabet-alt</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sort-by-order"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sort-by-order</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sort-by-order-alt"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sort-by-order-alt</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sort-by-attributes"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sort-by-attributes</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sort-by-attributes-alt"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sort-by-attributes-alt</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="unchecked"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].unchecked</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="expand"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].expand</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="collapse-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].collapse-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="collapse-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].collapse-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="log-in"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].log-in</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="flash"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].flash</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="log-out"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].log-out</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="new-window"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].new-window</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="record"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].record</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="save"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].save</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="open"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].open</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="saved"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].saved</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="import"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].import</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="export"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].export</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="send"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].send</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="floppy-disk"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].floppy-disk</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="floppy-saved"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].floppy-saved</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="floppy-remove"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].floppy-remove</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="floppy-save"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].floppy-save</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="floppy-open"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].floppy-open</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="credit-card"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].credit-card</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="transfer"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].transfer</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="cutlery"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].cutlery</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="header"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].header</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="compressed"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].compressed</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="earphone"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].earphone</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="phone-alt"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].phone-alt</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tower"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tower</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="stats"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].stats</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sd-video"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sd-video</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="hd-video"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].hd-video</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="subtitles"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].subtitles</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sound-stereo"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sound-stereo</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sound-dolby"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sound-dolby</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sound-5-1"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sound-5-1</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sound-6-1"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sound-6-1</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sound-7-1"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sound-7-1</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="copyright-mark"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].copyright-mark</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="registration-mark"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].registration-mark</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="cloud-download"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].cloud-download</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="cloud-upload"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].cloud-upload</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tree-conifer"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tree-conifer</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tree-deciduous"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tree-deciduous</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="cd"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].cd</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="save-file"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].save-file</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="open-file"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].open-file</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="level-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].level-up</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="copy"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].copy</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="paste"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].paste</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="alert"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].alert</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="equalizer"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].equalizer</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="king"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].king</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="queen"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].queen</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="pawn"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].pawn</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="bishop"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].bishop</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="knight"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].knight</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="baby-formula"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].baby-formula</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="tent"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].tent</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="blackboard"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].blackboard</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="bed"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].bed</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="apple"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].apple</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="erase"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].erase</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="hourglass"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].hourglass</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="lamp"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].lamp</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="duplicate"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].duplicate</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="piggy-bank"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].piggy-bank</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="scissors"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].scissors</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="bitcoin"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].bitcoin</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="yen"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].yen</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="ruble"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].ruble</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="scale"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].scale</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="ice-lolly"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].ice-lolly</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="ice-lolly-tasted"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].ice-lolly-tasted</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="education"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].education</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="option-horizontal"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].option-horizontal</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="option-vertical"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].option-vertical</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="menu-hamburger"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].menu-hamburger</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="modal-window"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].modal-window</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="oil"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].oil</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="grain"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].grain</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="sunglasses"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].sunglasses</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="text-size"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].text-size</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="text-color"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].text-color</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="text-background"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].text-background</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="object-align-top"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].object-align-top</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="object-align-bottom"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].object-align-bottom</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="object-align-horizontal"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].object-align-horizontal</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="object-align-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].object-align-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="object-align-vertical"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].object-align-vertical</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="object-align-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].object-align-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="triangle-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].triangle-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="triangle-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].triangle-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="triangle-bottom"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].triangle-bottom</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="triangle-top"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].triangle-top</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="console"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].console</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="superscript"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].superscript</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="subscript"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].subscript</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="menu-left"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].menu-left</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="menu-right"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].menu-right</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="menu-down"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].menu-down</span>
+		        </li>
+
+		        <li>
+		          <span am-Icon="glyph" class="menu-up"></span>
+		          <span class="glyphicon-class">[am-Icon="glyph"].menu-up</span>
+		        </li>
+
+		    </ul>
+		  </div>
+
+
+	</div>
+
+
+	<script src="../dist/js/bloxui.js" type="text/javascript"></script>
+</body>
+</html>
